@@ -1,229 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GlooVish - Social Media</title>
-  <style>
-    body { font-family: sans-serif; margin: 0; background: #111; color: #fff; }
-    .card { background: #1e1e1e; margin: 1em; padding: 1em; border-radius: 10px; }
-    input, button, textarea {
-      padding: 0.6em; margin: 0.3em 0; border: none; border-radius: 6px;
-      width: 100%; box-sizing: border-box;
-    }
-    video, img { max-width: 100%; border-radius: 8px; }
-    nav { position: fixed; bottom: 0; width: 100%; background: #222; display: flex; justify-content: space-around; padding: 0.5em 0; }
-    nav button { background: none; color: white; font-size: 1em; }
-  </style>
+  <title>GlooVish - Perbaikan Login/Register</title>
 </head>
 <body>
+  <!-- Form login dan register -->
+  <section id="authSection">
+    <h2>Masuk atau Daftar</h2>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button onclick="login()">Masuk</button>
+    <button onclick="register()">Daftar</button>
+  </section>
 
-<h2>GlooVish</h2>
+  <!-- Konten utama aplikasi -->
+  <section id="mainApp" style="display:none;">
+    <h2>Selamat datang di GlooVish!</h2>
+    <p>Anda telah berhasil login.</p>
+  </section>
 
-<div id="authSection">
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button onclick="login()">Login</button>
-  <button onclick="register()">Register</button>
-  <button onclick="resetPassword()">Reset Password</button>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-<div id="mainApp" style="display:none;">
-  <button onclick="logout()">Logout</button>
-  <input type="file" id="mediaUpload" />
-  <textarea id="caption" placeholder="Caption..."></textarea>
-  <button onclick="uploadPost()">Upload Post</button>
-  <div id="feed"></div>
-  <div id="publicProfile" class="card"></div>
-  <div id="chatBox" class="card" style="max-height: 300px; overflow-y: auto;"></div>
-  <input type="text" id="chatMessage" placeholder="Tulis pesan..." />
-  <button onclick="sendMessage('TARGET_USER_ID', document.getElementById('chatMessage').value)">Kirim</button>
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+      authDomain: "projectchat01-d16bc.firebaseapp.com",
+      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+      projectId: "projectchat01-d16bc",
+      storageBucket: "projectchat01-d16bc.appspot.com",
+      messagingSenderId: "163313653543",
+      appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02"
+    };
 
-<nav>
-  <button onclick="loadFeed()">🏠 Feed</button>
-  <button onclick="viewProfile()">👤 Profile</button>
-  <button onclick="showNotifications()">🔔</button>
-</nav>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
-  authDomain: "binzchat-17058.firebaseapp.com",
-  databaseURL: "https://binzchat-17058-default-rtdb.firebaseio.com",
-  projectId: "binzchat-17058",
-  storageBucket: "binzchat-17058.appspot.com",
-  messagingSenderId: "709921367866",
-  appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
-  measurementId: "G-TYLVHJWRD2"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-const storage = firebase.storage();
-  auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("authSection").style.display = "none";
-    document.getElementById("mainApp").style.display = "block";
-    loadFeed();
-  } else {
-    document.getElementById("authSection").style.display = "block";
-    document.getElementById("mainApp").style.display = "none";
-  }
-});
-
-function login() {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  auth.signInWithEmailAndPassword(email, password).catch(e => alert(e.message));
-}
-
-function register() {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(cred => {
-      db.ref('users/' + cred.user.uid).set({
-        email: email,
-        username: email.split('@')[0]
-      });
-    })
-    .catch(e => alert(e.message));
-}
-
-function resetPassword() {
-  const email = emailInput.value;
-  auth.sendPasswordResetEmail(email).then(() => alert("Email terkirim!")).catch(e => alert(e.message));
-}
-
-function logout() {
-  auth.signOut();
-}
-
-function uploadPost() {
-  const file = document.getElementById("mediaUpload").files[0];
-  const caption = document.getElementById("caption").value;
-  const userId = auth.currentUser.uid;
-  const storageRef = storage.ref('posts/' + Date.now() + '_' + file.name);
-
-  storageRef.put(file).then(snapshot => {
-    snapshot.ref.getDownloadURL().then(url => {
-      const newPostKey = db.ref().child('posts').push().key;
-      db.ref('posts/' + newPostKey).set({
-        userId,
-        caption,
-        media: url,
-        timestamp: Date.now()
-      });
-    });
-  });
-}
-
-function loadFeed() {
-  db.ref("posts").orderByChild("timestamp").once("value", snap => {
-    const feed = document.getElementById("feed");
-    feed.innerHTML = '';
-    snap.forEach(postSnap => {
-      const post = postSnap.val();
-      const mediaTag = post.media.endsWith(".mp4")
-        ? `<video controls src="${post.media}"></video>`
-        : `<img src="${post.media}" />`;
-      feed.innerHTML += `
-        <div class="card">
-          ${mediaTag}
-          <p>${post.caption}</p>
-          <button onclick="likePost('${postSnap.key}')">❤️ Like</button>
-          <input placeholder="Comment..." onkeydown="if(event.key==='Enter'){comment('${postSnap.key}', this.value)}" />
-        </div>`;
-    });
-  });
-}
-
-function likePost(postId) {
-  const userId = auth.currentUser.uid;
-  db.ref('likes/' + postId + '/' + userId).set(true);
-}
-
-function comment(postId, text) {
-  const userId = auth.currentUser.uid;
-  db.ref('comments/' + postId).push({ userId, text });
-}
-
-function viewProfile() {
-  const userId = auth.currentUser.uid;
-  viewPublicProfile(userId);
-}
-
-function showNotifications() {
-  alert("Notifikasi akan ditambahkan di versi selanjutnya.");
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || !password) return alert("Email dan password harus diisi.");
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showApp();
+      } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+          alert('Akun tidak ditemukan. Silakan daftar terlebih dahulu.');
+        } else if (err.code === 'auth/wrong-password') {
+          alert('Password salah.');
+        } else {
+          alert(err.message);
+        }
       }
-  // View public profile
-function viewPublicProfile(userId) {
-  db.ref('users/' + userId).once('value').then(snap => {
-    const data = snap.val();
-    const username = data.username || userId;
-    const container = document.getElementById("publicProfile");
-    container.innerHTML = `<h3>@${username}</h3><p>ID: ${userId}</p>`;
+    }
 
-    db.ref("posts").orderByChild("userId").equalTo(userId).once("value", postsSnap => {
-      postsSnap.forEach(postSnap => {
-        const post = postSnap.val();
-        const media = post.media.endsWith(".mp4")
-          ? `<video controls src="${post.media}"></video>`
-          : `<img src="${post.media}" />`;
-        container.innerHTML += `
-          <div class='card'>
-            ${media}
-            <p>${post.caption}</p>
-          </div>`;
-      });
+    async function register() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || !password) return alert("Email dan password harus diisi.");
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+        await set(ref(db, 'users/' + user.uid), {
+          name: email.split('@')[0],
+          email,
+          avatarUrl: "https://placehold.co/150x150?text=Avatar+Profil"
+        });
+        showApp();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function showApp() {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user);
+      if (user) {
+        showApp();
+      } else {
+        document.getElementById("authSection").style.display = "block";
+        document.getElementById("mainApp").style.display = "none";
+      }
     });
-  });
-}
-
-// Simple chat system
-function sendMessage(toUserId, message) {
-  const fromUserId = auth.currentUser.uid;
-  const chatId = fromUserId < toUserId
-    ? fromUserId + '_' + toUserId
-    : toUserId + '_' + fromUserId;
-
-  db.ref('chats/' + chatId).push({
-    from: fromUserId,
-    message,
-    timestamp: Date.now()
-  });
-}
-
-function loadChat(toUserId) {
-  const fromUserId = auth.currentUser.uid;
-  const chatId = fromUserId < toUserId
-    ? fromUserId + '_' + toUserId
-    : toUserId + '_' + fromUserId;
-
-  const chatBox = document.getElementById("chatBox");
-  db.ref('chats/' + chatId).on('value', snap => {
-    chatBox.innerHTML = "";
-    snap.forEach(msg => {
-      const m = msg.val();
-      chatBox.innerHTML += `<div><b>${m.from === fromUserId ? 'You' : 'Them'}:</b> ${m.message}</div>`;
-    });
-  });
-}
-</script>
-
-<!-- Navigasi Bawah (Mobile Friendly) -->
-<nav>
-  <button onclick="loadFeed()">🏠 Feed</button>
-  <button onclick="viewProfile()">👤 Profil</button>
-  <button onclick="showNotifications()">🔔 Notifikasi</button>
-</nav>
-
+  </script>
 </body>
 </html>
