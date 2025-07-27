@@ -1,120 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GlooVish Android GUI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GlooVish</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f0f0f0;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    .app-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-    }
-    .bottom-nav {
-      display: flex;
-      justify-content: space-around;
-      background: #fff;
-      border-top: 1px solid #ccc;
-      padding: 0.5rem 0;
-      position: sticky;
-      bottom: 0;
-    }
-    .nav-item {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #555;
-      flex-grow: 1;
-    }
-    .nav-item.active {
-      color: #007bff;
-      font-weight: bold;
-    }
-    .nav-item:hover {
-      background: #f9f9f9;
-    }
-    .screen {
-      display: none;
-    }
-    .screen.active {
-      display: block;
-    }
-    .btn {
-      background: #007bff;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border: none;
-      margin: 0.2rem;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    input {
-      padding: 0.5rem;
-      margin: 0.2rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .container { padding: 1rem; }
+    .hidden { display: none; }
+    .nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background: #fff; border-top: 1px solid #ccc; }
+    .nav button { flex: 1; padding: 1rem; border: none; background: #fff; }
+    .post, .user-item { background: #fff; padding: 1rem; margin: 1rem 0; border-radius: 8px; }
+    input, button { padding: 0.5rem; margin: 0.25rem 0; width: 100%; }
+    .btn { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
+    .btn:hover { background: #0056b3; }
+    img { max-width: 100px; border-radius: 50%; }
   </style>
 </head>
 <body>
-  <div id="authSection" class="app-container">
-    <h3>Login / Register</h3>
-    <input type="email" id="emailInput" placeholder="Email" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <br/><br/>
-    <button class="btn" onclick="login()">Login</button>
-    <button class="btn" onclick="register()">Register</button>
-    <button class="btn" onclick="resetPassword()">Reset Password</button>
-    <button class="btn" onclick="loginWithGoogle()">Login with Google</button>
-    <br/><br/>
-    <div id="authMessage"></div>
+  <div class="container" id="authSection">
+    <h2>Login / Register</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
   </div>
 
-  <div id="mainApp" class="app-container" style="display: none;">
-    <div id="home" class="screen active">
-      <h2>Beranda</h2>
-      <p>Konten beranda di sini.</p>
+  <div class="container hidden" id="home">
+    <h2>Beranda</h2>
+    <div>
+      <input type="file" id="media" />
+      <input type="text" id="caption" placeholder="Caption" />
+      <button onclick="uploadPost()">Unggah</button>
     </div>
-    <div id="chat" class="screen">
-      <h2>Pesan</h2>
-      <p>Chat pengguna di sini.</p>
-    </div>
-    <div id="profile" class="screen">
-      <h2>Profil</h2>
-      <p>Data pengguna dan pengaturan akun.</p>
-      <button class="btn" onclick="logout()">Logout</button>
-    </div>
+    <div id="feed"></div>
   </div>
 
-  <div class="bottom-nav" style="display: none;" id="navBar">
-    <div class="nav-item active" onclick="switchTab('home', this)">Beranda</div>
-    <div class="nav-item" onclick="switchTab('chat', this)">Pesan</div>
-    <div class="nav-item" onclick="switchTab('profile', this)">Profil</div>
+  <div class="container hidden" id="users">
+    <h2>Pengguna</h2>
+    <div id="userList"></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      GoogleAuthProvider,
-      signInWithPopup,
-      sendPasswordResetEmail
-    } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  <div class="container hidden" id="profile">
+    <h2>Profil</h2>
+    <img id="profilePicPreview" src="https://via.placeholder.com/100" /><br/>
+    <input type="text" id="username" placeholder="Nama Anda" />
+    <input type="file" id="profilePic" />
+    <button onclick="saveProfile()">Simpan Profil</button>
+    <div>
+      <strong>Pengikut:</strong> <span id="followersCount">0</span><br/>
+      <strong>Mengikuti:</strong> <span id="followingCount">0</span><br/>
+    </div>
+    <button class="btn" onclick="showFollowList('followers')">Lihat Pengikut</button>
+    <button class="btn" onclick="showFollowList('following')">Lihat Mengikuti</button>
+    <div id="followList"></div>
+    <button id="backToMyProfile" class="btn" onclick="backToMyProfile()" style="display:none">Kembali ke Profil Saya</button>
+    <button id="followButton" class="btn" onclick="toggleFollowViewedUser()" style="display:none">Follow</button>
+  </div>
 
+  <div class="nav">
+    <button onclick="switchTab('home')">🏠</button>
+    <button onclick="switchTab('users')">👥</button>
+    <button onclick="switchTab('profile')">👤</button>
+  </div>
+
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
       authDomain: "binzchat-17058.firebaseapp.com",
@@ -125,82 +78,227 @@
       appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
       measurementId: "G-TYLVHJWRD2"
     };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    window.register = function () {
-      const email = document.getElementById("emailInput").value;
-      const password = document.getElementById("passwordInput").value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          document.getElementById("authMessage").textContent = "Registrasi berhasil!";
-        })
-        .catch((error) => {
-          document.getElementById("authMessage").textContent = error.message;
-        });
+    function switchTab(tab) {
+      ['home', 'users', 'profile'].forEach(t => document.getElementById(t).classList.add('hidden'));
+      document.getElementById(tab).classList.remove('hidden');
     }
 
-    window.login = function () {
-      const email = document.getElementById("emailInput").value;
-      const password = document.getElementById("passwordInput").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          document.getElementById("authMessage").textContent = "Login berhasil!";
-        })
-        .catch((error) => {
-          document.getElementById("authMessage").textContent = error.message;
-        });
+    function login() {
+      const email = email.value;
+      const password = password.value;
+      auth.signInWithEmailAndPassword(email, password).then(() => {
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('home').classList.remove('hidden');
+        renderFeed();
+        listUsers();
+        loadProfile();
+      });
     }
 
-    window.resetPassword = function () {
-      const email = document.getElementById("emailInput").value;
-      if (!email) {
-        document.getElementById("authMessage").textContent = "Masukkan email terlebih dahulu.";
-        return;
+    function register() {
+      const email = email.value;
+      const password = password.value;
+      auth.createUserWithEmailAndPassword(email, password).then(() => login());
+    }
+
+    function saveProfile() {
+      const file = document.getElementById('profilePic').files[0];
+      const name = document.getElementById('username').value;
+      const uid = auth.currentUser.uid;
+      const photoURL = file ? URL.createObjectURL(file) : '';
+      db.ref('users/' + uid).update({ name, photoURL });
+      document.getElementById('profilePicPreview').src = photoURL;
+    }
+
+    function loadProfile() {
+      const uid = auth.currentUser.uid;
+      db.ref('users/' + uid).on('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          document.getElementById('username').value = data.name || '';
+          document.getElementById('profilePicPreview').src = data.photoURL || '';
+          document.getElementById('followersCount').innerText = data.followers ? Object.keys(data.followers).length : 0;
+          document.getElementById('followingCount').innerText = data.following ? Object.keys(data.following).length : 0;
+        }
+      });
+    }
+
+    function listUsers() {
+      db.ref('users').on('value', snapshot => {
+        const userList = document.getElementById('userList');
+        userList.innerHTML = '';
+        const currentUid = auth.currentUser.uid;
+        snapshot.forEach(userSnap => {
+          const userId = userSnap.key;
+          if (userId === currentUid) return;
+          const data = userSnap.val();
+          const div = document.createElement('div');
+          div.className = 'user-item';
+          const name = document.createElement('span');
+          name.textContent = data.name;
+          name.style.cursor = 'pointer';
+          name.onclick = () => viewUserProfile(userId);
+          const btn = document.createElement('button');
+          btn.textContent = 'Follow';
+          db.ref(`followers/${userId}/${currentUid}`).once('value', snap => {
+            if (snap.exists()) btn.textContent = 'Unfollow';
+          });
+          btn.onclick = () => {
+            const updates = {};
+            const path1 = `followers/${userId}/${currentUid}`;
+            const path2 = `following/${currentUid}/${userId}`;
+            db.ref(path1).once('value', snap => {
+              if (snap.exists()) {
+                updates[path1] = null;
+                updates[path2] = null;
+              } else {
+                updates[path1] = true;
+                updates[path2] = true;
+              }
+              db.ref().update(updates);
+            });
+          };
+          div.appendChild(name);
+          div.appendChild(btn);
+          userList.appendChild(div);
+        });
+      });
+    }
+
+    function uploadPost() {
+      const media = document.getElementById('media').files[0];
+      const caption = document.getElementById('caption').value;
+      if (!media) return;
+      const mediaURL = URL.createObjectURL(media);
+      const postId = db.ref('posts').push().key;
+      db.ref('posts/' + postId).set({
+        uid: auth.currentUser.uid,
+        caption,
+        mediaURL
+      });
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById('feed');
+      db.ref('posts').on('value', snapshot => {
+        feed.innerHTML = '';
+        const posts = snapshot.val();
+        if (!posts) return;
+        Object.entries(posts).reverse().forEach(([id, post]) => {
+          const div = document.createElement('div');
+          div.className = 'post';
+          div.innerHTML = `
+            <img src="${post.mediaURL}" />
+            <p><strong>${post.caption}</strong></p>
+            <button onclick="toggleLike('${id}')">❤️ Like</button>
+            <span>${post.likes ? Object.keys(post.likes).length : 0} suka</span>
+            <input type="text" id="comment-${id}" placeholder="Tulis komentar..." />
+            <button onclick="addComment('${id}')">Kirim</button>
+            <div id="comments-${id}"></div>
+          `;
+          feed.appendChild(div);
+          renderComments(id);
+        });
+      });
+    }
+
+    function toggleLike(id) {
+      const uid = auth.currentUser.uid;
+      const refLike = db.ref(`posts/${id}/likes/${uid}`);
+      refLike.once('value', snap => {
+        if (snap.exists()) refLike.remove();
+        else refLike.set(true);
+      });
+    }
+
+    function addComment(id) {
+      const text = document.getElementById(`comment-${id}`).value;
+      const uid = auth.currentUser.uid;
+      if (text) {
+        db.ref(`posts/${id}/comments`).push({ uid, text });
+        document.getElementById(`comment-${id}`).value = '';
       }
-      sendPasswordResetEmail(auth, email)
-        .then(() => {
-          document.getElementById("authMessage").textContent = "Email reset password telah dikirim.";
-        })
-        .catch((error) => {
-          document.getElementById("authMessage").textContent = error.message;
+    }
+
+    function renderComments(id) {
+      const commentDiv = document.getElementById(`comments-${id}`);
+      db.ref(`posts/${id}/comments`).on('value', snap => {
+        commentDiv.innerHTML = '';
+        const data = snap.val();
+        if (!data) return;
+        Object.values(data).forEach(c => {
+          const p = document.createElement('p');
+          p.textContent = c.text;
+          commentDiv.appendChild(p);
         });
+      });
     }
 
-    window.loginWithGoogle = function () {
-      const provider = new GoogleAuthProvider();
-      signInWithPopup(auth, provider)
-        .then(() => {
-          document.getElementById("authMessage").textContent = "Login Google berhasil!";
-        })
-        .catch((error) => {
-          document.getElementById("authMessage").textContent = error.message;
+    function showFollowList(type) {
+      const uid = auth.currentUser.uid;
+      const list = document.getElementById('followList');
+      list.innerHTML = `<h3>${type === 'followers' ? 'Pengikut' : 'Mengikuti'}</h3>`;
+      db.ref(`${type}/${uid}`).once('value', snap => {
+        if (!snap.exists()) return list.innerHTML += '<p>Belum ada.</p>';
+        Object.keys(snap.val()).forEach(id => {
+          db.ref('users/' + id).once('value', u => {
+            const div = document.createElement('div');
+            div.textContent = u.val().name;
+            div.onclick = () => viewUserProfile(id);
+            list.appendChild(div);
+          });
         });
+      });
     }
 
-    window.logout = function () {
-      signOut(auth);
+    let viewedUserId = null;
+    function viewUserProfile(uid) {
+      viewedUserId = uid;
+      switchTab('profile');
+      document.getElementById('backToMyProfile').style.display = (uid === auth.currentUser.uid) ? 'none' : 'block';
+      document.getElementById('followButton').style.display = (uid === auth.currentUser.uid) ? 'none' : 'inline-block';
+      db.ref('users/' + uid).once('value', snap => {
+        const data = snap.val();
+        document.getElementById('username').value = data.name;
+        document.getElementById('profilePicPreview').src = data.photoURL;
+        document.getElementById('followersCount').textContent = data.followers ? Object.keys(data.followers).length : 0;
+        document.getElementById('followingCount').textContent = data.following ? Object.keys(data.following).length : 0;
+      });
     }
 
-    onAuthStateChanged(auth, (user) => {
+    function backToMyProfile() {
+      viewUserProfile(auth.currentUser.uid);
+    }
+
+    function toggleFollowViewedUser() {
+      const current = auth.currentUser.uid;
+      db.ref(`followers/${viewedUserId}/${current}`).once('value', snap => {
+        const updates = {};
+        if (snap.exists()) {
+          updates[`followers/${viewedUserId}/${current}`] = null;
+          updates[`following/${current}/${viewedUserId}`] = null;
+        } else {
+          updates[`followers/${viewedUserId}/${current}`] = true;
+          updates[`following/${current}/${viewedUserId}`] = true;
+        }
+        db.ref().update(updates).then(() => viewUserProfile(viewedUserId));
+      });
+    }
+
+    auth.onAuthStateChanged(user => {
       if (user) {
-        document.getElementById("authSection").style.display = "none";
-        document.getElementById("mainApp").style.display = "block";
-        document.getElementById("navBar").style.display = "flex";
-      } else {
-        document.getElementById("authSection").style.display = "block";
-        document.getElementById("mainApp").style.display = "none";
-        document.getElementById("navBar").style.display = "none";
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('home').classList.remove('hidden');
+        switchTab('home');
+        renderFeed();
+        listUsers();
+        loadProfile();
       }
     });
-
-    window.switchTab = function (tabId, element) {
-      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      element.classList.add('active');
-    }
   </script>
 </body>
 </html>
