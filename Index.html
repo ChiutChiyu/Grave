@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -73,9 +74,7 @@
       margin: auto;
       animation: fadeIn 0.4s ease-in-out;
     }
-    .tab {
-      display: none;
-    }
+    .tab { display: none; }
     .card {
       background: white;
       border-radius: 12px;
@@ -103,9 +102,14 @@
       nav { display: none; }
       .bottom-nav { display: flex; }
     }
+    #authSection { display: none; text-align: center; padding: 20px; }
+    input { display: block; margin: 10px auto; padding: 8px; width: 80%; max-width: 300px; border-radius: 6px; border: 1px solid #ccc; }
+    .link-btn { background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.9rem; margin-top: 5px; text-decoration: underline; }
   </style>
 </head>
-<body><header>
+<body>
+
+<header>
   <h1>GlooVish</h1>
   <nav>
     <button onclick="switchTab('home')"><i class="fas fa-home"></i> Beranda</button>
@@ -113,30 +117,35 @@
     <button onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Notifikasi</button>
     <button onclick="switchTab('profile')"><i class="fas fa-user"></i> Profil</button>
   </nav>
-</header><div class="bottom-nav">
-  <button onclick="switchTab('home')">
-    <i class="fas fa-home"></i>
-    <span>Home</span>
-  </button>
-  <button onclick="switchTab('upload')">
-    <i class="fas fa-upload"></i>
-    <span>Upload</span>
-  </button>
-  <button onclick="switchTab('notifications')">
-    <i class="fas fa-bell"></i>
-    <span>Notifikasi</span>
-    <span class="badge" id="notifBadge">0</span>
-  </button>
-  <button onclick="switchTab('profile')">
-    <i class="fas fa-user"></i>
-    <span>Profil</span>
-  </button>
-</div><div class="container" id="mainApp">
-  <div id="home" class="tab" style="display:block;">Selamat datang di Beranda GlooVish!</div>
+</header>
+
+<div class="bottom-nav">
+  <button onclick="switchTab('home')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button onclick="switchTab('upload')"><i class="fas fa-upload"></i><span>Upload</span></button>
+  <button onclick="switchTab('notifications')"><i class="fas fa-bell"></i><span>Notifikasi</span><span class="badge" id="notifBadge">0</span></button>
+  <button onclick="switchTab('profile')"><i class="fas fa-user"></i><span>Profil</span></button>
+</div>
+
+<div id="authSection">
+  <h2>Masuk atau Daftar</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button class="btn" onclick="login()">Masuk</button>
+  <button class="btn" onclick="register()">Daftar</button>
+  <button class="link-btn" onclick="resetPassword()">Lupa Password?</button>
+</div>
+
+<div class="container" id="mainApp">
+  <div id="home" class="tab">Selamat datang di Beranda GlooVish!</div>
   <div id="upload" class="tab">Upload Foto atau Video Anda di sini.</div>
   <div id="notifications" class="tab">Notifikasi Anda akan muncul di sini.</div>
   <div id="profile" class="tab">Profil pengguna. Edit profil, lihat pengikut, dan lainnya.</div>
-</div><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
     authDomain: "binzchat-17058.firebaseapp.com",
@@ -147,9 +156,18 @@
     appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
     measurementId: "G-TYLVHJWRD2"
   };
-
   firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
   const db = firebase.database();
+
+  function switchTab(tabId) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => t.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+    if (tabId === 'notifications') {
+      document.getElementById('notifBadge').style.display = 'none';
+    }
+  }
 
   const notifRef = db.ref("notifications");
   notifRef.on("value", snapshot => {
@@ -168,14 +186,44 @@
     }
   });
 
-  function switchTab(tabId) {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(t => t.style.display = 'none');
-    document.getElementById(tabId).style.display = 'block';
-
-    if (tabId === 'notifications') {
-      document.getElementById('notifBadge').style.display = 'none';
-    }
+  function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => showApp())
+      .catch(err => alert(err.message));
   }
-</script></body>
+
+  function register() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => showApp())
+      .catch(err => alert(err.message));
+  }
+
+  function resetPassword() {
+    const email = document.getElementById("email").value;
+    if (!email) return alert("Masukkan email terlebih dahulu.");
+    auth.sendPasswordResetEmail(email)
+      .then(() => alert("Email reset password telah dikirim."))
+      .catch(err => alert(err.message));
+  }
+
+  function showApp() {
+    document.getElementById("authSection").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      showApp();
+    } else {
+      document.getElementById("authSection").style.display = "block";
+      document.getElementById("mainApp").style.display = "none";
+    }
+  });
+</script>
+
+</body>
 </html>
