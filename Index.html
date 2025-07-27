@@ -1,279 +1,260 @@
 <!DOCTYPE html>
-<html lang="id">
+<html class="scroll-smooth" lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Media App</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>GlooVish</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      color: #333333;
+    }
+    button:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
+  <header class="sticky top-0 z-50 bg-white shadow-md flex justify-between items-center px-5 py-4">
+    <h1 class="text-blue-500 text-2xl font-semibold select-none">GlooVish</h1>
+    <nav class="hidden md:flex space-x-6">
+      <button class="flex items-center gap-2 text-gray-700 hover:text-blue-600" onclick="switchTab('home')"><i class="fas fa-home"></i> Beranda</button>
+      <button class="flex items-center gap-2 text-gray-700 hover:text-blue-600" onclick="switchTab('upload')"><i class="fas fa-upload"></i> Upload</button>
+      <button class="flex items-center gap-2 text-gray-700 hover:text-blue-600" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Notifikasi</button>
+      <button class="flex items-center gap-2 text-gray-700 hover:text-blue-600" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profil</button>
+    </nav>
+  </header>
+
+  <main class="flex-grow max-w-3xl mx-auto w-full px-5 pt-6 pb-24 md:pb-6">
+    <section id="mainApp" class="space-y-6">
+      <article id="home" class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn">
+        <h2 class="text-xl font-semibold mb-3 text-gray-900">Selamat datang di Beranda GlooVish!</h2>
+        <p class="text-gray-700">Nikmati konten terbaru dan terpopuler yang kami sajikan untuk Anda.</p>
+        <div class="mt-6 space-y-4" id="feedContainer"></div>
+        <img class="mt-4 rounded-lg shadow-sm w-full object-cover" src="https://storage.googleapis.com/a1aa/image/336a0e50-0600-4570-0ff1-a5ab5dcabe50.jpg" />
+      </article>
+
+      <article id="upload" class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn">
+        <h2 class="text-xl font-semibold mb-3 text-gray-900">Upload Foto atau Video Anda di sini</h2>
+        <form class="flex flex-col gap-4" id="uploadForm">
+          <div>
+            <label class="text-sm font-medium text-gray-700">Judul</label>
+            <input id="uploadTitle" type="text" placeholder="Judul postingan" class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Deskripsi</label>
+            <textarea id="uploadDesc" rows="3" placeholder="Tulis deskripsi..." class="w-full border border-gray-300 rounded-lg px-4 py-2" required></textarea>
+          </div>
+          <input id="fileInput" type="file" accept="image/*,video/*" class="border border-gray-300 rounded-lg p-2">
+          <button id="uploadBtn" type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg" disabled>Upload</button>
+        </form>
+        <div id="uploadPreviewContainer" hidden class="mt-6">
+          <h3 class="text-lg font-semibold mb-2 text-gray-900">Preview Upload</h3>
+          <div id="uploadPreview" class="rounded-lg shadow-sm w-full max-h-96 overflow-hidden flex justify-center items-center bg-gray-50"></div>
+        </div>
+      </article>
+      <article id="notifications" class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn">
+        <h2 class="text-xl font-semibold mb-3 text-gray-900">Notifikasi Anda</h2>
+        <ul id="notifList" class="divide-y divide-gray-200 max-h-96 overflow-y-auto"></ul>
+        <img class="mt-6 rounded-lg shadow-sm w-full object-cover" src="https://storage.googleapis.com/a1aa/image/7c2406ed-e8ae-40e6-8228-99f66938cdbe.jpg" />
+      </article>
+
+      <article id="profile" class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn">
+        <h2 class="text-xl font-semibold mb-3 text-gray-900">Profil pengguna</h2>
+        <div class="flex flex-col md:flex-row md:items-center md:gap-6">
+          <img id="profileAvatar" class="rounded-full w-36 h-36 object-cover shadow-md mx-auto md:mx-0" src="https://placehold.co/150x150?text=Avatar+Profil"/>
+          <div class="flex-1 mt-4 md:mt-0">
+            <h3 class="text-lg font-semibold text-gray-900" id="profileNameDisplay">Nama Pengguna</h3>
+            <p class="text-gray-600 mb-2" id="profileEmailDisplay">email@example.com</p>
+            <button id="editProfileBtn" onclick="openEditProfile()" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg">Edit Profil</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Modal Edit Profil -->
+  <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 hidden" aria-modal="true">
+    <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
+      <h3 class="text-xl font-semibold mb-4 text-gray-900">Edit Profil</h3>
+      <form id="editProfileForm" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="editName">Nama Pengguna</label>
+          <input id="editName" type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="editEmail">Email</label>
+          <input id="editEmail" type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1" for="editAvatarUrl">URL Avatar</label>
+          <input id="editAvatarUrl" type="url" placeholder="https://..." class="w-full border border-gray-300 rounded-lg px-4 py-2">
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <button type="button" id="cancelEditBtn" class="text-blue-600 border border-blue-600 px-4 py-2 rounded-lg">Batal</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getDatabase, ref, set, push, get, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateEmail } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getDatabase, ref, onValue, set, push, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
     import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_ID",
-      appId: "YOUR_APP_ID",
-      databaseURL: "YOUR_DB_URL"
+      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+      authDomain: "projectchat01-d16bc.firebaseapp.com",
+      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+      projectId: "projectchat01-d16bc",
+      storageBucket: "projectchat01-d16bc.appspot.com",
+      messagingSenderId: "163313653543",
+      appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02",
+      measurementId: "G-M8JFL7S0TV"
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase();
-    const storage = getStorage();
-
-    const tabs = document.querySelectorAll('.tab');
-    const sections = document.querySelectorAll('.section');
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
     function switchTab(tabId) {
-      sections.forEach(s => s.hidden = true);
-      document.getElementById(tabId).hidden = false;
-
-      if (tabId === 'upload') {
-        fileInput.value = '';
-        uploadTitleInput.value = '';
-        uploadDescriptionInput.value = '';
-        uploadPreviewContainer.hidden = true;
-        uploadPreview.innerHTML = '';
-        uploadBtn.disabled = true;
-      }
+      document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
+      document.getElementById(tabId).style.display = 'block';
     }
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-    });
+    switchTab('home');
 
-    const register = async () => {
-      const email = registerEmail.value;
-      const password = registerPassword.value;
-      try {
-        document.querySelector('button[onclick="register()"]').disabled = true;
-        await createUserWithEmailAndPassword(auth, email, password);
-      } catch (e) {
-        alert("Gagal register: " + e.message);
-      } finally {
-        document.querySelector('button[onclick="register()"]').disabled = false;
-      }
-    }
-
-    const login = async () => {
-      const email = loginEmail.value;
-      const password = loginPassword.value;
-      try {
-        document.querySelector('button[onclick="login()"]').disabled = true;
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (e) {
-        alert("Gagal login: " + e.message);
-      } finally {
-        document.querySelector('button[onclick="login()"]').disabled = false;
-      }
-    }
-
-    function logout() {
-      auth.signOut();
-    }
-    window.logout = logout;
-
-    const loadHomeFeed = async () => {
-      const snapshot = await get(ref(db, 'posts'));
-      if (!snapshot.exists()) return homeFeed.innerHTML = '<p>Tidak ada postingan.</p>';
-
-      const posts = Object.entries(snapshot.val()).map(([id, val]) => ({ id, ...val })).reverse();
-
-      const commentsMap = {};
-      const likesMap = {};
-      await Promise.all(posts.map(async post => {
-        const cSnap = await get(ref(db, `comments/${post.id}`));
-        commentsMap[post.id] = cSnap.exists() ? Object.values(cSnap.val()) : [];
-
-        const lSnap = await get(ref(db, `likes/${post.id}`));
-        likesMap[post.id] = lSnap.exists() ? Object.keys(lSnap.val()).length : 0;
-      }));
-
-      homeFeed.innerHTML = '';
-      posts.forEach(post => {
-        const postEl = document.createElement('div');
-        postEl.className = "p-4 border rounded mb-4";
-
-        postEl.innerHTML = `
-          <p><strong>${post.name}</strong> <span class="text-xs text-gray-500">(${post.time})</span></p>
-          <p class="text-lg font-semibold">${post.title}</p>
-          <p>${post.description}</p>
-          ${post.type.startsWith('image') ?
-            `<img src="${post.url}" class="mt-2 max-h-64 rounded" />` :
-            `<video controls class="mt-2 w-full max-h-64 rounded"><source src="${post.url}" type="${post.type}"></video>`
-          }
-          <button onclick="toggleLike('${post.id}')" id="likeBtn-${post.id}" class="mt-3 text-sm text-gray-600 hover:text-blue-500">
-            ❤️ Suka
-          </button>
-          <span id="likeCount-${post.id}" class="text-sm ml-2">${likesMap[post.id]}</span>
-
-          <div class="mt-4">
-            <form onsubmit="addComment('${post.id}', this); return false;" class="flex items-center gap-2">
-              <input type="text" placeholder="Tulis komentar..." class="flex-1 border rounded px-3 py-1 text-sm" required />
-              <button type="submit" class="text-sm text-blue-600 hover:underline">Kirim</button>
-            </form>
-            <ul id="comments-${post.id}" class="mt-2 space-y-1 text-sm text-gray-700"></ul>
-          </div>
-        `;
-        homeFeed.appendChild(postEl);
-
-        const commentsEl = postEl.querySelector(`#comments-${post.id}`);
-        commentsMap[post.id].forEach(c => {
-          const li = document.createElement('li');
-          li.innerHTML = `<strong>${c.user}:</strong> ${c.text} <span class="text-xs text-gray-400">(${c.time})</span>`;
-          commentsEl.appendChild(li);
-        });
-      });
-    }
-
-    window.toggleLike = async (postId) => {
-      const user = auth.currentUser;
-      if (!user) return alert("Login untuk menyukai.");
-      const likeRef = ref(db, `likes/${postId}/${user.uid}`);
-      const snap = await get(likeRef);
-      await set(likeRef, snap.exists() ? null : true);
-      loadHomeFeed();
-    }
-
-    window.addComment = function(postId, form) {
-      const text = form.querySelector('input').value.trim();
-      if (!text) return;
-      const user = auth.currentUser;
-      if (!user) return alert("Login dulu.");
-      get(ref(db, 'users/' + user.uid)).then(snap => {
-        const name = snap.val()?.name || user.email.split('@')[0];
-        const cRef = push(ref(db, `comments/${postId}`));
-        set(cRef, {
-          user: name,
-          text,
-          time: new Date().toLocaleString()
-        });
-        form.reset();
-        loadHomeFeed();
-      });
-    }
-
-    const updateProfile = async () => {
-      const user = auth.currentUser;
-      const name = profileName.value;
-      const email = profileEmail.value;
-      const updates = { name, email };
-      const file = profileImage.files[0];
-
-      if (file) {
-        const fileRef = sRef(storage, `avatars/${user.uid}-${file.name}`);
-        await uploadBytes(fileRef, file);
-        const url = await getDownloadURL(fileRef);
-        updates.avatarUrl = url;
-      }
-
-      await update(ref(db, 'users/' + user.uid), updates);
-      alert("Profil diperbarui");
-    }
-
-    const uploadPost = async () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      const user = auth.currentUser;
-      const userSnap = await get(ref(db, 'users/' + user.uid));
-      const userData = userSnap.val();
-      const name = userData?.name || user.email;
-
-      const fileRef = sRef(storage, `uploads/${user.uid}-${file.name}`);
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-
-      const newPostRef = push(ref(db, 'posts'));
-      const time = new Date().toLocaleString();
-      const postData = {
-        name, time,
-        title: uploadTitleInput.value,
-        description: uploadDescriptionInput.value,
-        url, type: file.type
-      };
-
-      await set(newPostRef, postData);
-
-      // Tambah notifikasi
-      const notifRef = push(ref(db, 'notifications'));
-      await set(notifRef, {
-        title: "Unggahan Baru!",
-        message: `${name} mengunggah: ${postData.title}`,
-        time
-      });
-
-      alert("Berhasil upload!");
-      switchTab("home");
-      loadHomeFeed();
-    }
-
-    onAuthStateChanged(auth, async user => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
-        loginSection.hidden = registerSection.hidden = true;
-        mainSection.hidden = false;
-
-        const snap = await get(ref(db, 'users/' + user.uid));
-        if (snap.exists()) {
-          profileName.value = snap.val().name || "";
-          profileEmail.value = snap.val().email || user.email;
-        }
-        loadHomeFeed();
+        showApp();
+        loadFeed();
       } else {
-        mainSection.hidden = true;
-        loginSection.hidden = false;
+        document.getElementById("mainApp").style.display = "none";
+        document.getElementById("authSection").style.display = "block";
       }
     });
 
-    window.register = register;
-    window.login = login;
-    window.updateProfile = updateProfile;
-    window.uploadPost = uploadPost;
+    function showApp() {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      loadUserProfile();
+    }
+
+    // Upload logic
+    const uploadForm = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const uploadPreviewContainer = document.getElementById('uploadPreviewContainer');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      uploadPreview.innerHTML = '';
+      if (!file) {
+        uploadBtn.disabled = true;
+        uploadPreviewContainer.hidden = true;
+        return;
+      }
+      uploadBtn.disabled = false;
+      uploadPreviewContainer.hidden = false;
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      if (isImage) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.className = 'max-h-96 rounded-lg object-contain';
+        uploadPreview.appendChild(img);
+      } else if (isVideo) {
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.className = 'max-h-96 rounded-lg object-contain';
+        uploadPreview.appendChild(video);
+      }
+    });
+
+    uploadForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return alert('Login dulu ya!');
+      const file = fileInput.files[0];
+      if (!file) return alert('Pilih file dulu.');
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Mengunggah...';
+
+      try {
+        const ext = file.name.split('.').pop();
+        const fileName = `uploads/${user.uid}/${Date.now()}.${ext}`;
+        const fileRef = sRef(storage, fileName);
+        await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(fileRef);
+
+        const title = document.getElementById('uploadTitle').value.trim();
+        const description = document.getElementById('uploadDesc').value.trim();
+
+        const uploadsRef = ref(db, 'uploads/' + user.uid);
+        const newUploadRef = push(uploadsRef);
+        await set(newUploadRef, {
+          url: downloadURL,
+          type: file.type,
+          name: file.name,
+          title,
+          description,
+          uid: user.uid,
+          timestamp: Date.now()
+        });
+
+        alert('Upload berhasil!');
+        fileInput.value = '';
+        uploadPreview.innerHTML = '';
+        uploadPreviewContainer.hidden = true;
+      } catch (err) {
+        alert('Gagal upload: ' + err.message);
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload';
+      }
+    });
+    // Load feed dari semua user
+    function loadFeed() {
+      const feedContainer = document.getElementById("feedContainer");
+      const uploadsRef = ref(db, 'uploads');
+      onValue(uploadsRef, (snapshot) => {
+        feedContainer.innerHTML = '';
+        const uploads = snapshot.val();
+        if (!uploads) return;
+        const items = [];
+        Object.values(uploads).forEach(userUploads => {
+          Object.values(userUploads).forEach(post => items.push(post));
+        });
+        items.sort((a, b) => b.timestamp - a.timestamp);
+        items.forEach(post => {
+          const postElement = document.createElement('div');
+          postElement.className = "bg-white p-4 rounded-lg shadow-md";
+          postElement.innerHTML = `
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">${post.title || 'Tanpa Judul'}</h3>
+            <p class="text-sm text-gray-700 mb-2">${post.description || ''}</p>
+            ${post.type.startsWith('image/') ? `<img src="${post.url}" alt="${post.name}" class="rounded-lg max-h-80 w-full object-contain">` : ''}
+            ${post.type.startsWith('video/') ? `<video src="${post.url}" controls class="rounded-lg max-h-80 w-full object-contain"></video>` : ''}
+          `;
+          feedContainer.appendChild(postElement);
+        });
+      });
+    }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="font-sans bg-gray-100 p-4 text-sm">
-  <div id="loginSection">
-    <h2 class="text-xl mb-2">Login</h2>
-    <input type="email" id="loginEmail" placeholder="Email" class="mb-2 p-2 border w-full" required />
-    <input type="password" id="loginPassword" placeholder="Password" class="mb-2 p-2 border w-full" required />
-    <button onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
-    <p class="mt-2 text-sm">Belum punya akun? <a href="#" onclick="loginSection.hidden=true;registerSection.hidden=false;" class="text-blue-600 underline">Daftar</a></p>
-  </div>
-
-  <div id="registerSection" hidden>
-    <h2 class="text-xl mb-2">Register</h2>
-    <input type="email" id="registerEmail" placeholder="Email" class="mb-2 p-2 border w-full" required />
-    <input type="password" id="registerPassword" placeholder="Password" class="mb-2 p-2 border w-full" required />
-    <button onclick="register()" class="bg-green-600 text-white px-4 py-2 rounded">Register</button>
-    <p class="mt-2 text-sm">Sudah punya akun? <a href="#" onclick="loginSection.hidden=false;registerSection.hidden=true;" class="text-blue-600 underline">Login</a></p>
-  </div>
-
-  <div id="mainSection" hidden>
-    <div class="flex gap-4 mb-4">
-      <button class="tab px-4 py-2 bg-white border rounded" data-tab="home">Home</button>
-      <button class="tab px-4 py-2 bg-white border rounded" data-tab="upload">Upload</button>
-      <button class="tab px-4 py-2 bg-white border rounded" data-tab="profile">Profil</button>
-    </div>
-
-    <div id="home" class="section"></div>
-
-    <div id="upload" class="section" hidden>
-      <input type="file" id="fileInput" class="mb-2" accept="image/*,video/*" />
-      <input type="text" id="uploadTitleInput" placeholder="Judul" class="mb-2 p-2 border w-full" />
-      <textarea id="uploadDescriptionInput" placeholder="Deskripsi" class="mb-2 p-2 border w-full"></textarea>
-      <button id="uploadBtn" onclick="uploadPost()" class="bg-blue-500 text-white px-4 py-2 rounded">Upload</button>
-    </div>
-
-    <div id="profile" class="section" hidden>
-      <input type="text" id="profileName" placeholder="Nama" class="mb-2 p-2 border w-full" />
-      <input type="email" id="profileEmail" placeholder="Email" class="mb-2 p-2 border w-full" />
-      <input type="file" id="profileImage" class="mb-2" accept="image/*" />
-      <button onclick="updateProfile()" class="bg-yellow-500 text-white px-4 py-2 rounded">Simpan</button>
-      <button onclick="logout()" class="mt-4 text-red-600 text-sm underline">Keluar</button>
-    </div>
-  </div>
 </body>
 </html>
