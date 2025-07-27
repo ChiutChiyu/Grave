@@ -1,764 +1,547 @@
 <!DOCTYPE html>
-<html class="scroll-smooth" lang="id">
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <title>GlooVish</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet"/>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f2f5;
-      color: #333333;
-    }
-    button:focus-visible {
-      outline: 2px solid #2563eb;
-      outline-offset: 2px;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeIn {
-      animation: fadeIn 0.3s ease-out forwards;
-    }
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .tab {
-      display: none;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-    .tab.active-tab {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-      animation: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glovish - Share Your Moments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #fafafa;
+            color: #262626;
+        }
+        
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid #dbdbdb;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-family: 'Billabong', cursive;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .search {
+            padding: 8px 10px;
+            border-radius: 8px;
+            background-color: #efefef;
+            border: none;
+            width: 200px;
+        }
+        
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-icons i {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Main Content */
+        .container {
+            display: flex;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+        
+        /* Stories */
+        .stories {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        .story {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .story-avatar {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+        
+        .story-username {
+            font-size: 12px;
+        }
+        
+        /* Posts */
+        .posts {
+            flex: 2;
+        }
+        
+        .post {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+        }
+        
+        .post-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .post-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .post-user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .post-image {
+            width: 100%;
+        }
+        
+        .post-image img {
+            width: 100%;
+            height: auto;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+        }
+        
+        .post-actions-left {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-actions i {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .post-likes {
+            padding: 0 15px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .post-caption {
+            padding: 0 15px;
+            margin-bottom: 5px;
+        }
+        
+        .post-comments {
+            padding: 0 15px;
+            color: #8e8e8e;
+            margin-bottom: 5px;
+        }
+        
+        .post-time {
+            padding: 0 15px 10px;
+            color: #8e8e8e;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        
+        .add-comment {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-top: 1px solid #efefef;
+        }
+        
+        .comment-input {
+            border: none;
+            outline: none;
+            width: 90%;
+        }
+        
+        .post-button {
+            color: #0095f6;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            flex: 1;
+            padding-left: 30px;
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .switch-button {
+            color: #0095f6;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .suggestions-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .suggestions-title {
+            color: #8e8e8e;
+            font-weight: bold;
+        }
+        
+        .see-all {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .suggestion {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .suggestion-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .suggestion-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .suggestion-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .follow-button {
+            color: #0095f6;
+            font-weight: bold;
+            font-size: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #c7c7c7;
+            font-size: 11px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: #c7c7c7;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 935px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .container {
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
-  <header class="sticky top-0 z-50 bg-white shadow-md flex justify-between items-center px-5 py-4">
-    <h1 class="text-blue-500 text-2xl font-semibold select-none">GlooVish</h1>
-    <nav class="hidden md:flex space-x-6">
-      <button aria-label="Beranda" class="flex items-center gap-2 text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('home')">
-        <i class="fas fa-home text-lg"></i> Beranda
-      </button>
-      <button aria-label="Upload" class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('upload')">
-        <i class="fas fa-upload text-lg"></i> Upload
-      </button>
-      <button aria-label="Notifikasi" class="relative flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('notifications')">
-        <i class="fas fa-bell text-lg"></i> Notifikasi
-        <span class="absolute -top-1 -right-3 bg-red-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 hidden" id="notifBadgeDesktop"></span>
-      </button>
-      <button aria-label="Profil" class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('profile')">
-        <i class="fas fa-user text-lg"></i> Profil
-      </button>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">Glovish</div>
+        <input type="text" class="search" placeholder="Search">
+        <div class="nav-icons">
+            <i class="fas fa-home"></i>
+            <i class="far fa-paper-plane"></i>
+            <i class="far fa-compass"></i>
+            <i class="far fa-heart"></i>
+            <i class="far fa-user"></i>
+        </div>
     </nav>
-  </header>
-  
-  <main class="flex-grow max-w-3xl mx-auto w-full px-5 pt-6 pb-24 md:pb-6">
-    <section aria-label="Form autentikasi" class="max-w-md mx-auto bg-white rounded-xl shadow-md p-8 text-center" id="authSection">
-      <h2 class="text-2xl font-semibold mb-6 text-gray-800">Masuk atau Daftar</h2>
-      <div id="authError" class="text-red-500 mb-4 text-sm hidden"></div>
-      <input aria-label="Email" class="w-full mb-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="email" placeholder="Email" type="email"/>
-      <input aria-label="Password" class="w-full mb-6 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="password" placeholder="Password" type="password"/>
-      <div class="flex flex-col space-y-3">
-        <button class="btn-primary w-full py-3 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition flex justify-center items-center gap-2" onclick="login()" id="loginBtn">
-          <span id="loginText">Masuk</span>
-          <div id="loginSpinner" class="spinner hidden"></div>
-        </button>
-        <button class="btn-secondary w-full py-3 rounded-lg font-semibold text-blue-600 border border-blue-600 hover:bg-blue-50 transition flex justify-center items-center gap-2" onclick="register()" id="registerBtn">
-          <span id="registerText">Daftar</span>
-          <div id="registerSpinner" class="spinner hidden"></div>
-        </button>
-        <button class="text-blue-600 underline mt-2 text-sm hover:text-blue-800 transition" onclick="resetPassword()">Lupa Password?</button>
-      </div>
-    </section>
     
-    <section aria-live="polite" class="space-y-6 hidden" id="mainApp">
-      <article class="tab bg-white rounded-xl shadow-md p-6 active-tab animate-fadeIn" id="home">
-        <h2 class="text-xl font-semibold mb-3 text-gray-900">Selamat datang di Beranda GlooVish!</h2>
-        <p class="text-gray-700 leading-relaxed">
-          Nikmati konten terbaru dan terpopuler yang kami sajikan untuk Anda. Jelajahi berbagai fitur menarik dan tetap terhubung dengan komunitas kami.
-        </p>
-        <img alt="Ilustrasi beranda aplikasi GlooVish dengan tampilan konten dan interaksi pengguna" class="mt-4 rounded-lg shadow-sm w-full object-cover" height="300" src="https://storage.googleapis.com/a1aa/image/336a0e50-0600-4570-0ff1-a5ab5dcabe50.jpg" width="600"/>
-      </article>
-      
-      <article class="tab bg-white rounded-xl shadow-md p-6" id="upload">
-        <h2 class="text-xl font-semibold mb-3 text-gray-900">Upload Foto atau Video Anda di sini</h2>
-        <p class="text-gray-700 mb-4">
-          Bagikan momen terbaik Anda dengan komunitas GlooVish. Pilih file dari perangkat Anda dan unggah dengan mudah.
-        </p>
-        <form class="flex flex-col gap-4" id="uploadForm">
-          <input accept="image/*,video/*" aria-label="Pilih file foto atau video" class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="fileInput" type="file"/>
-          <button class="btn-primary w-max px-6 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition flex items-center gap-2" disabled="" id="uploadBtn" type="submit">
-            <span>Upload</span>
-            <div id="uploadSpinner" class="spinner hidden"></div>
-          </button>
-        </form>
-        <div class="mt-6" hidden="" id="uploadPreviewContainer">
-          <h3 class="text-lg font-semibold mb-2 text-gray-900">Preview Upload</h3>
-          <div class="rounded-lg shadow-sm w-full max-h-96 overflow-hidden flex justify-center items-center bg-gray-50" id="uploadPreview"></div>
-        </div>
-      </article>
-      
-      <article class="tab bg-white rounded-xl shadow-md p-6" id="notifications">
-        <h2 class="text-xl font-semibold mb-3 text-gray-900">Notifikasi Anda akan muncul di sini</h2>
-        <ul class="divide-y divide-gray-200 max-h-96 overflow-y-auto" id="notifList"></ul>
-        <img alt="Ilustrasi notifikasi masuk di aplikasi GlooVish dengan ikon lonceng dan daftar pesan" class="mt-6 rounded-lg shadow-sm w-full object-cover" height="300" src="https://storage.googleapis.com/a1aa/image/7c2406ed-e8ae-40e6-8228-99f66938cdbe.jpg" width="600"/>
-      </article>
-      
-      <article class="tab bg-white rounded-xl shadow-md p-6" id="profile">
-        <h2 class="text-xl font-semibold mb-3 text-gray-900">Profil pengguna</h2>
-        <p class="text-gray-700 mb-4">
-          Edit profil, lihat pengikut, dan kelola pengaturan akun Anda dengan mudah.
-        </p>
-        <div class="flex flex-col md:flex-row md:items-center md:gap-6">
-          <img alt="Avatar profil pengguna aplikasi GlooVish" class="rounded-full w-36 h-36 object-cover shadow-md mx-auto md:mx-0" height="150" id="profileAvatar" src="https://placehold.co/150x150?text=Avatar+Profil" width="150"/>
-          <div class="flex-1 mt-4 md:mt-0">
-            <h3 class="text-lg font-semibold text-gray-900" id="profileNameDisplay">Nama Pengguna</h3>
-            <p class="text-gray-600 mb-2" id="profileEmailDisplay">email@example.com</p>
-            <button class="btn-primary px-5 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition w-full md:w-auto" id="editProfileBtn" onclick="openEditProfile()">
-              Edit Profil
-            </button>
-            <button class="btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition w-full md:w-auto mt-3" onclick="logout()">
-              Logout
-            </button>
-          </div>
-        </div>
-        <div class="mt-6">
-          <h4 class="text-md font-semibold text-gray-900 mb-2">Pengikut Anda</h4>
-          <ul class="flex flex-wrap gap-4" id="followersList">
-            <li class="flex flex-col items-center w-20">
-              <img alt="Foto profil pengikut 1 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/c23f9332-e097-48bd-069b-619c8391c4b5.jpg" width="60"/>
-              <span class="text-xs mt-1 truncate w-full text-center">Follower1</span>
-            </li>
-            <li class="flex flex-col items-center w-20">
-              <img alt="Foto profil pengikut 2 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/bf058839-fa3e-43e9-37e1-53583dc712f4.jpg" width="60"/>
-              <span class="text-xs mt-1 truncate w-full text-center">Follower2</span>
-            </li>
-            <li class="flex flex-col items-center w-20">
-              <img alt="Foto profil pengikut 3 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/c7e8c6d8-29e9-44e4-e625-50ec467c5212.jpg" width="60"/>
-              <span class="text-xs mt-1 truncate w-full text-center">Follower3</span>
-            </li>
-            <li class="flex flex-col items-center w-20">
-              <img alt="Foto profil pengikut 4 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/bffb460f-d62c-4a3a-c52a-10f4c1d2faad.jpg" width="60"/>
-              <span class="text-xs mt-1 truncate w-full text-center">Follower4</span>
-            </li>
-            <li class="flex flex-col items-center w-20">
-              <img alt="Foto profil pengikut 5 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/34cf880d-4edd-4614-bb00-1e0a3ad11e03.jpg" width="60"/>
-              <span class="text-xs mt-1 truncate w-full text-center">Follower5</span>
-            </li>
-          </ul>
-        </div>
-      </article>
-    </section>
-  </main>
-  
-  <nav aria-label="Navigasi bawah" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 flex justify-around items-center py-2 px-1 md:hidden z-50 shadow-inner">
-    <button aria-label="Beranda" class="flex flex-col items-center text-blue-600 transition-colors text-xs font-semibold relative" onclick="switchTab('home')">
-      <i class="fas fa-home text-xl"></i>
-      <span class="mt-0.5">Home</span>
-    </button>
-    <button aria-label="Upload" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold" onclick="switchTab('upload')">
-      <i class="fas fa-upload text-xl"></i>
-      <span class="mt-0.5">Upload</span>
-    </button>
-    <button aria-label="Notifikasi" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold relative" onclick="switchTab('notifications')">
-      <i class="fas fa-bell text-xl"></i>
-      <span class="mt-0.5">Notifikasi</span>
-      <span class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5 hidden" id="notifBadge"></span>
-    </button>
-    <button aria-label="Profil" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold" onclick="switchTab('profile')">
-      <i class="fas fa-user text-xl"></i>
-      <span class="mt-0.5">Profil</span>
-    </button>
-  </nav>
-  
-  <!-- Modal Edit Profil -->
-  <div aria-hidden="true" aria-labelledby="editProfileTitle" aria-modal="true" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 hidden" id="editProfileModal" role="dialog">
-    <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
-      <h3 class="text-xl font-semibold mb-4 text-gray-900" id="editProfileTitle">Edit Profil</h3>
-      <form class="space-y-4" id="editProfileForm">
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="editName">Nama Pengguna</label>
-          <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="editName" name="name" required="" type="text"/>
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="editEmail">Email</label>
-          <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="editEmail" name="email" required="" type="email"/>
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="editAvatarUrl">URL Avatar Profil</label>
-          <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="editAvatarUrl" name="avatarUrl" placeholder="https://example.com/avatar.jpg" type="url"/>
-        </div>
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <button class="btn-secondary px-4 py-2 rounded-lg font-semibold text-blue-600 border border-blue-600 hover:bg-blue-50 transition" id="cancelEditBtn" type="button">Batal</button>
-          <button class="btn-primary px-4 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition flex items-center gap-2" type="submit">
-            <span>Simpan</span>
-            <div id="saveProfileSpinner" class="spinner hidden"></div>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged, 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword, 
-      sendPasswordResetEmail, 
-      updateEmail,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { 
-      getDatabase, 
-      ref, 
-      onValue, 
-      set, 
-      push, 
-      get 
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-    import { 
-      getStorage, 
-      ref as sRef, 
-      uploadBytes, 
-      getDownloadURL 
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
-      authDomain: "projectchat01-d16bc.firebaseapp.com",
-      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
-      projectId: "projectchat01-d16bc",
-      storageBucket: "projectchat01-d16bc.appspot.com",
-      messagingSenderId: "163313653543",
-      appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02",
-      measurementId: "G-M8JFL7S0TV"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const storage = getStorage(app);
-
-    // Fungsi untuk menampilkan pesan error
-    function showError(message) {
-      const errorElement = document.getElementById('authError');
-      errorElement.textContent = message;
-      errorElement.classList.remove('hidden');
-      setTimeout(() => {
-        errorElement.classList.add('hidden');
-      }, 5000);
-    }
-
-    // Fungsi untuk toggle loading state
-    function toggleLoading(buttonId, isLoading) {
-      const button = document.getElementById(buttonId);
-      const spinner = button.querySelector('.spinner');
-      const textSpan = button.querySelector('span');
-      
-      if (isLoading) {
-        spinner.classList.remove('hidden');
-        textSpan.classList.add('hidden');
-        button.disabled = true;
-      } else {
-        spinner.classList.add('hidden');
-        textSpan.classList.remove('hidden');
-        button.disabled = false;
-      }
-    }
-
-    // Fungsi untuk berpindah tab
-    function switchTab(tabId) {
-      // Pastikan mainApp sudah ditampilkan
-      if (document.getElementById('mainApp').style.display === 'none') {
-        return;
-      }
-
-      // Sembunyikan semua tab
-      const tabs = document.querySelectorAll('.tab');
-      tabs.forEach(tab => {
-        tab.style.display = 'none';
-        tab.classList.remove('active-tab');
-      });
-
-      // Tampilkan tab yang dipilih dengan animasi
-      const activeTab = document.getElementById(tabId);
-      if (activeTab) {
-        activeTab.style.display = 'block';
-        activeTab.classList.add('active-tab');
-        activeTab.classList.add('animate-fadeIn');
-      }
-
-      // Perbarui indikator navigasi
-      updateActiveNavIndicator(tabId);
-    }
-
-    // Fungsi untuk memperbarui indikator navigasi aktif
-    function updateActiveNavIndicator(tabId) {
-      // Reset semua navigasi
-      const navButtons = document.querySelectorAll('nav button, .bottom-nav button');
-      navButtons.forEach(btn => {
-        btn.classList.remove('text-blue-600');
-        btn.classList.add('text-gray-700');
-      });
-
-      // Set navigasi aktif
-      const activeButtons = document.querySelectorAll(`button[onclick="switchTab('${tabId}')"]`);
-      activeButtons.forEach(btn => {
-        btn.classList.remove('text-gray-700');
-        btn.classList.add('text-blue-600');
-      });
-    }
-
-    function showApp() {
-      document.getElementById("authSection").style.display = "none";
-      const mainApp = document.getElementById("mainApp");
-      mainApp.style.display = "block";
-      
-      // Reset semua tab
-      const tabs = document.querySelectorAll('.tab');
-      tabs.forEach(tab => {
-        tab.style.display = 'none';
-        tab.classList.remove('active-tab');
-      });
-      
-      // Tampilkan tab home sebagai default
-      document.getElementById('home').style.display = 'block';
-      document.getElementById('home').classList.add('active-tab');
-      document.getElementById('home').classList.add('animate-fadeIn');
-      
-      // Update navigasi
-      updateActiveNavIndicator('home');
-      loadUserProfile();
-    }
-
-    const notifBadgeMobile = document.getElementById("notifBadge");
-    const notifBadgeDesktop = document.getElementById("notifBadgeDesktop");
-    const notifList = document.getElementById("notifList");
-
-    const notifRef = ref(db, "notifications");
-    onValue(notifRef, (snapshot) => {
-      const val = snapshot.val();
-      if (val) {
-        const keys = Object.keys(val);
-        const count = keys.length;
-        if (count > 0) {
-          notifBadgeMobile.innerText = count;
-          notifBadgeMobile.style.display = 'inline';
-          notifBadgeDesktop.innerText = count;
-          notifBadgeDesktop.style.display = 'inline';
-        } else {
-          notifBadgeMobile.style.display = 'none';
-          notifBadgeDesktop.style.display = 'none';
-        }
-        notifList.innerHTML = '';
-        keys.forEach(key => {
-          const notif = val[key];
-          const li = document.createElement('li');
-          li.className = 'py-3 px-2 hover:bg-gray-50 cursor-pointer flex items-start gap-3';
-          li.tabIndex = 0;
-          li.setAttribute('role', 'listitem');
-          li.innerHTML = `
-            <i class="fas fa-bell text-blue-500 mt-1 flex-shrink-0"></i>
-            <div class="flex-1">
-              <p class="font-semibold text-gray-900">${notif.title || 'Notifikasi'}</p>
-              <p class="text-gray-700 text-sm">${notif.message || ''}</p>
-              <time class="text-gray-400 text-xs">${notif.time || ''}</time>
+    <!-- Main Content -->
+    <div class="container">
+        <div class="posts">
+            <!-- Stories -->
+            <div class="stories">
+                <div class="story">
+                    <div class="story-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+                    </div>
+                    <span class="story-username">your_story</span>
+                </div>
+                <div class="story">
+                    <div class="story-avatar">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                    </div>
+                    <span class="story-username">user1</span>
+                </div>
+                <div class="story">
+                    <div class="story-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User">
+                    </div>
+                    <span class="story-username">traveler</span>
+                </div>
+                <div class="story">
+                    <div class="story-avatar">
+                        <img src="https://randomuser.me/api/portraits/men/76.jpg" alt="User">
+                    </div>
+                    <span class="story-username">photographer</span>
+                </div>
+                <div class="story">
+                    <div class="story-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="User">
+                    </div>
+                    <span class="story-username">foodie</span>
+                </div>
             </div>
-          `;
-          notifList.appendChild(li);
-        });
-      } else {
-        notifBadgeMobile.style.display = 'none';
-        notifBadgeDesktop.style.display = 'none';
-        notifList.innerHTML = '<li class="py-3 px-2 text-gray-500 text-center">Tidak ada notifikasi.</li>';
-      }
-    });
-
-    async function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      
-      if (!email) {
-        showError("Email harus diisi.");
-        return;
-      }
-      
-      if (!password) {
-        showError("Password harus diisi.");
-        return;
-      }
-      
-      if (password.length < 6) {
-        showError("Password harus memiliki minimal 6 karakter.");
-        return;
-      }
-      
-      toggleLoading('loginBtn', true);
-      
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showApp();
-      } catch (err) {
-        let errorMessage = "Terjadi kesalahan saat login.";
-        switch (err.code) {
-          case "auth/invalid-email":
-            errorMessage = "Format email tidak valid.";
-            break;
-          case "auth/user-disabled":
-            errorMessage = "Akun ini telah dinonaktifkan.";
-            break;
-          case "auth/user-not-found":
-            errorMessage = "Akun tidak ditemukan.";
-            break;
-          case "auth/wrong-password":
-            errorMessage = "Password salah.";
-            break;
-          default:
-            errorMessage = err.message;
-        }
-        showError(errorMessage);
-      } finally {
-        toggleLoading('loginBtn', false);
-      }
-    }
-
-    async function register() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      
-      if (!email) {
-        showError("Email harus diisi.");
-        return;
-      }
-      
-      if (!password) {
-        showError("Password harus diisi.");
-        return;
-      }
-      
-      if (password.length < 6) {
-        showError("Password harus memiliki minimal 6 karakter.");
-        return;
-      }
-      
-      toggleLoading('registerBtn', true);
-      
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        const userRef = ref(db, 'users/' + user.uid);
-        await set(userRef, {
-          name: user.email.split('@')[0],
-          email: user.email,
-          avatarUrl: "https://placehold.co/150x150?text=Avatar+Profil"
-        });
-        showApp();
-      } catch (err) {
-        let errorMessage = "Terjadi kesalahan saat mendaftar.";
-        switch (err.code) {
-          case "auth/email-already-in-use":
-            errorMessage = "Email sudah digunakan.";
-            break;
-          case "auth/invalid-email":
-            errorMessage = "Format email tidak valid.";
-            break;
-          case "auth/weak-password":
-            errorMessage = "Password terlalu lemah.";
-            break;
-          default:
-            errorMessage = err.message;
-        }
-        showError(errorMessage);
-      } finally {
-        toggleLoading('registerBtn', false);
-      }
-    }
-
-    async function resetPassword() {
-      const email = document.getElementById("email").value.trim();
-      if (!email) {
-        showError("Masukkan email terlebih dahulu.");
-        return;
-      }
-      
-      try {
-        await sendPasswordResetEmail(auth, email);
-        alert("Email reset password telah dikirim. Silakan periksa kotak masuk email Anda.");
-      } catch (err) {
-        showError("Gagal mengirim email reset password: " + err.message);
-      }
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        showApp();
-      } else {
-        document.getElementById("authSection").style.display = "block";
-        document.getElementById("mainApp").style.display = "none";
-      }
-    });
-
-    async function loadUserProfile() {
-      const user = auth.currentUser;
-      if (!user) return;
-      
-      const userRef = ref(db, 'users/' + user.uid);
-      try {
-        const snapshot = await get(userRef);
-        const data = snapshot.val();
-        if (data) {
-          document.getElementById('profileNameDisplay').textContent = data.name || 'Nama Pengguna';
-          document.getElementById('profileEmailDisplay').textContent = data.email || user.email || 'email@example.com';
-          document.getElementById('profileAvatar').src = data.avatarUrl || "https://placehold.co/150x150?text=Avatar+Profil";
-        } else {
-          document.getElementById('profileNameDisplay').textContent = user.email.split('@')[0];
-          document.getElementById('profileEmailDisplay').textContent = user.email;
-          document.getElementById('profileAvatar').src = "https://placehold.co/150x150?text=Avatar+Profil";
-        }
-      } catch {
-        // ignore errors
-      }
-    }
-
-    // Fungsi logout
-    async function logout() {
-      try {
-        await signOut(auth);
-      } catch (err) {
-        showError("Gagal logout: " + err.message);
-      }
-    }
-
-    // Modal controls
-    const editProfileModal = document.getElementById('editProfileModal');
-    const editProfileForm = document.getElementById('editProfileForm');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-
-    function openEditProfile() {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Anda harus login terlebih dahulu.");
-        return;
-      }
-      
-      const userRef = ref(db, 'users/' + user.uid);
-      get(userRef).then(snapshot => {
-        const data = snapshot.val() || {};
-        document.getElementById('editName').value = data.name || user.email.split('@')[0];
-        document.getElementById('editEmail').value = data.email || user.email;
-        document.getElementById('editAvatarUrl').value = data.avatarUrl || "";
-        showModal();
-      });
-    }
-
-    function showModal() {
-      editProfileModal.classList.remove('hidden');
-      editProfileModal.setAttribute('aria-hidden', 'false');
-      document.getElementById('editName').focus();
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      editProfileModal.classList.add('hidden');
-      editProfileModal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-
-    cancelEditBtn.addEventListener('click', e => {
-      e.preventDefault();
-      closeModal();
-    });
-
-    editProfileModal.addEventListener('click', e => {
-      if (e.target === editProfileModal) {
-        closeModal();
-      }
-    });
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !editProfileModal.classList.contains('hidden')) {
-        closeModal();
-      }
-    });
-
-    editProfileForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Anda harus login terlebih dahulu.");
-        closeModal();
-        return;
-      }
-      
-      const name = document.getElementById('editName').value.trim();
-      const email = document.getElementById('editEmail').value.trim();
-      const avatarUrl = document.getElementById('editAvatarUrl').value.trim();
-
-      if (!name) {
-        showError("Nama tidak boleh kosong.");
-        return;
-      }
-      
-      if (!email) {
-        showError("Email tidak boleh kosong.");
-        return;
-      }
-
-      const saveBtn = document.querySelector('#editProfileForm button[type="submit"]');
-      const spinner = document.getElementById('saveProfileSpinner');
-      const saveText = saveBtn.querySelector('span');
-      
-      // Tampilkan loading state
-      spinner.classList.remove('hidden');
-      saveText.classList.add('hidden');
-      saveBtn.disabled = true;
-
-      try {
-        if (email !== user.email) {
-          await updateEmail(user, email);
-        }
-      } catch (err) {
-        alert("Gagal memperbarui email: " + err.message);
-        spinner.classList.add('hidden');
-        saveText.classList.remove('hidden');
-        saveBtn.disabled = false;
-        return;
-      }
-
-      const userRef = ref(db, 'users/' + user.uid);
-      try {
-        await set(userRef, {
-          name,
-          email,
-          avatarUrl: avatarUrl || "https://placehold.co/150x150?text=Avatar+Profil"
-        });
-        loadUserProfile();
-        closeModal();
-        alert("Profil berhasil diperbarui.");
-      } catch (err) {
-        alert("Gagal memperbarui profil: " + err.message);
-      } finally {
-        spinner.classList.add('hidden');
-        saveText.classList.remove('hidden');
-        saveBtn.disabled = false;
-      }
-    });
-
-    // Upload functionality
-    const uploadForm = document.getElementById('uploadForm');
-    const fileInput = document.getElementById('fileInput');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const uploadPreviewContainer = document.getElementById('uploadPreviewContainer');
-    const uploadPreview = document.getElementById('uploadPreview');
-
-    fileInput.addEventListener('change', () => {
-      uploadPreview.innerHTML = '';
-      const file = fileInput.files[0];
-      if (!file) {
-        uploadBtn.disabled = true;
-        uploadPreviewContainer.hidden = true;
-        return;
-      }
-      
-      uploadBtn.disabled = false;
-      uploadPreviewContainer.hidden = false;
-
-      if (file.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        img.alt = 'Preview gambar yang akan diupload';
-        img.className = 'max-h-96 rounded-lg object-contain';
-        uploadPreview.appendChild(img);
-      } else if (file.type.startsWith('video/')) {
-        const video = document.createElement('video');
-        video.src = URL.createObjectURL(file);
-        video.controls = true;
-        video.className = 'max-h-96 rounded-lg object-contain';
-        uploadPreview.appendChild(video);
-      } else {
-        uploadPreview.textContent = 'Tipe file tidak didukung untuk preview.';
-      }
-    });
-
-    uploadForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const user = auth.currentUser;
-      if (!user) {
-        alert('Anda harus login terlebih dahulu.');
-        return;
-      }
-      
-      const file = fileInput.files[0];
-      if (!file) {
-        alert('Pilih file terlebih dahulu.');
-        return;
-      }
-      
-      const spinner = document.getElementById('uploadSpinner');
-      const uploadText = uploadBtn.querySelector('span');
-      
-      // Tampilkan loading state
-      spinner.classList.remove('hidden');
-      uploadText.classList.add('hidden');
-      uploadBtn.disabled = true;
-
-      try {
-        const ext = file.name.split('.').pop();
-        const fileName = `uploads/${user.uid}/${Date.now()}.${ext}`;
-        const fileRef = sRef(storage, fileName);
-        await uploadBytes(fileRef, file);
-        const downloadURL = await getDownloadURL(fileRef);
-
-        const uploadsRef = ref(db, 'uploads/' + user.uid);
-        const newUploadRef = push(uploadsRef);
-        await set(newUploadRef, {
-          url: downloadURL,
-          type: file.type,
-          name: file.name,
-          timestamp: Date.now()
-        });
-
-        alert('File berhasil diupload!');
-        fileInput.value = '';
-        uploadPreview.innerHTML = '';
-        uploadPreviewContainer.hidden = true;
-      } catch (error) {
-        alert('Gagal mengupload file: ' + error.message);
-      } finally {
-        spinner.classList.add('hidden');
-        uploadText.classList.remove('hidden');
-        uploadBtn.disabled = false;
-      }
-    });
-
-    // Inisialisasi awal
-    document.addEventListener('DOMContentLoaded', () => {
-      // Set tab home sebagai default jika sudah login
-      if (document.getElementById('mainApp').style.display === 'block') {
-        switchTab('home');
-      }
-    });
-  </script>
+            
+            <!-- Posts -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-user">
+                        <div class="post-user-avatar">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                        </div>
+                        <span>user1</span>
+                    </div>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <div class="post-image">
+                    <img src="https://source.unsplash.com/random/600x600" alt="Post">
+                </div>
+                <div class="post-actions">
+                    <div class="post-actions-left">
+                        <i class="far fa-heart"></i>
+                        <i class="far fa-comment"></i>
+                        <i class="far fa-paper-plane"></i>
+                    </div>
+                    <i class="far fa-bookmark"></i>
+                </div>
+                <div class="post-likes">1,234 likes</div>
+                <div class="post-caption">
+                    <strong>user1</strong> Beautiful day at the beach! #summer #vacation
+                </div>
+                <div class="post-comments">View all 56 comments</div>
+                <div class="post-time">2 HOURS AGO</div>
+                <div class="add-comment">
+                    <input type="text" class="comment-input" placeholder="Add a comment...">
+                    <button class="post-button">Post</button>
+                </div>
+            </div>
+            
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-user">
+                        <div class="post-user-avatar">
+                            <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User">
+                        </div>
+                        <span>traveler</span>
+                    </div>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <div class="post-image">
+                    <img src="https://source.unsplash.com/random/600x600?mountain" alt="Post">
+                </div>
+                <div class="post-actions">
+                    <div class="post-actions-left">
+                        <i class="far fa-heart"></i>
+                        <i class="far fa-comment"></i>
+                        <i class="far fa-paper-plane"></i>
+                    </div>
+                    <i class="far fa-bookmark"></i>
+                </div>
+                <div class="post-likes">3,456 likes</div>
+                <div class="post-caption">
+                    <strong>traveler</strong> Mountain views that take your breath away! #nature #adventure
+                </div>
+                <div class="post-comments">View all 128 comments</div>
+                <div class="post-time">5 HOURS AGO</div>
+                <div class="add-comment">
+                    <input type="text" class="comment-input" placeholder="Add a comment...">
+                    <button class="post-button">Post</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+                    </div>
+                    <div>
+                        <div class="username">your_username</div>
+                        <div class="name">Your Name</div>
+                    </div>
+                </div>
+                <button class="switch-button">Switch</button>
+            </div>
+            
+            <div class="suggestions">
+                <div class="suggestions-header">
+                    <span class="suggestions-title">Suggestions For You</span>
+                    <span class="see-all">See All</span>
+                </div>
+                
+                <div class="suggestion">
+                    <div class="suggestion-info">
+                        <div class="suggestion-avatar">
+                            <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="User">
+                        </div>
+                        <div>
+                            <div class="username">artist123</div>
+                            <div class="info">Followed by user1 + 3 more</div>
+                        </div>
+                    </div>
+                    <button class="follow-button">Follow</button>
+                </div>
+                
+                <div class="suggestion">
+                    <div class="suggestion-info">
+                        <div class="suggestion-avatar">
+                            <img src="https://randomuser.me/api/portraits/women/88.jpg" alt="User">
+                        </div>
+                        <div>
+                            <div class="username">fitness_guru</div>
+                            <div class="info">New to Glovish</div>
+                        </div>
+                    </div>
+                    <button class="follow-button">Follow</button>
+                </div>
+                
+                <div class="suggestion">
+                    <div class="suggestion-info">
+                        <div class="suggestion-avatar">
+                            <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="User">
+                        </div>
+                        <div>
+                            <div class="username">tech_enthusiast</div>
+                            <div class="info">Followed by traveler</div>
+                        </div>
+                    </div>
+                    <button class="follow-button">Follow</button>
+                </div>
+                
+                <div class="suggestion">
+                    <div class="suggestion-info">
+                        <div class="suggestion-avatar">
+                            <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="User">
+                        </div>
+                        <div>
+                            <div class="username">fashionista</div>
+                            <div class="info">New to Glovish</div>
+                        </div>
+                    </div>
+                    <button class="follow-button">Follow</button>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="footer-links">
+                    <a href="#">About</a>
+                    <a href="#">Help</a>
+                    <a href="#">Press</a>
+                    <a href="#">API</a>
+                    <a href="#">Jobs</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Locations</a>
+                    <a href="#">Top Accounts</a>
+                    <a href="#">Hashtags</a>
+                    <a href="#">Language</a>
+                </div>
+                <div class="copyright">© 2023 GLOVISH</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
