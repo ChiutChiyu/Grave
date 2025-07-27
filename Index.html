@@ -1,95 +1,582 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GlooVish - Perbaikan Login/Register</title>
-</head>
-<body>
-  <!-- Form login dan register -->
-  <section id="authSection">
-    <h2>Masuk atau Daftar</h2>
-    <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="login()">Masuk</button>
-    <button onclick="register()">Daftar</button>
-  </section>
-
-  <!-- Konten utama aplikasi -->
-  <section id="mainApp" style="display:none;">
-    <h2>Selamat datang di GlooVish!</h2>
-    <p>Anda telah berhasil login.</p>
-  </section>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
-      authDomain: "projectchat01-d16bc.firebaseapp.com",
-      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
-      projectId: "projectchat01-d16bc",
-      storageBucket: "projectchat01-d16bc.appspot.com",
-      messagingSenderId: "163313653543",
-      appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    async function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      if (!email || !password) return alert("Email dan password harus diisi.");
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showApp();
-      } catch (err) {
-        if (err.code === 'auth/user-not-found') {
-          alert('Akun tidak ditemukan. Silakan daftar terlebih dahulu.');
-        } else if (err.code === 'auth/wrong-password') {
-          alert('Password salah.');
-        } else {
-          alert(err.message);
-        }
-      }
-    }
-
-    async function register() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      if (!email || !password) return alert("Email dan password harus diisi.");
-      try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCred.user;
-        await set(ref(db, 'users/' + user.uid), {
-          name: email.split('@')[0],
-          email,
-          avatarUrl: "https://placehold.co/150x150?text=Avatar+Profil"
-        });
-        showApp();
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    function showApp() {
-      document.getElementById("authSection").style.display = "none";
-      document.getElementById("mainApp").style.display = "block";
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      console.log("Auth state changed:", user);
-      if (user) {
-        showApp();
-      } else {
-        document.getElementById("authSection").style.display = "block";
-        document.getElementById("mainApp").style.display = "none";
-      }
-    });
+<html class="scroll-smooth" lang="id">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   GlooVish
+  </title>
+  <script src="https://cdn.tailwindcss.com">
   </script>
-</body>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      color: #333333;
+    }
+    button:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+ </head>
+ <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
+  <header class="sticky top-0 z-50 bg-white shadow-md flex justify-between items-center px-5 py-4">
+   <h1 class="text-blue-500 text-2xl font-semibold select-none">
+    GlooVish
+   </h1>
+   <nav class="hidden md:flex space-x-6">
+    <button aria-label="Beranda" class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('home')">
+     <i class="fas fa-home text-lg">
+     </i>
+     Beranda
+    </button>
+    <button aria-label="Upload" class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('upload')">
+     <i class="fas fa-upload text-lg">
+     </i>
+     Upload
+    </button>
+    <button aria-label="Notifikasi" class="relative flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('notifications')">
+     <i class="fas fa-bell text-lg">
+     </i>
+     Notifikasi
+     <span class="absolute -top-1 -right-3 bg-red-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 hidden" id="notifBadgeDesktop">
+     </span>
+    </button>
+    <button aria-label="Profil" class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors text-sm font-medium" onclick="switchTab('profile')">
+     <i class="fas fa-user text-lg">
+     </i>
+     Profil
+    </button>
+   </nav>
+  </header>
+  <main class="flex-grow max-w-3xl mx-auto w-full px-5 pt-6 pb-24 md:pb-6">
+   <section aria-label="Form autentikasi" class="max-w-md mx-auto bg-white rounded-xl shadow-md p-8 text-center hidden" id="authSection">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">
+     Masuk atau Daftar
+    </h2>
+    <input aria-label="Email" class="w-full mb-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="email" placeholder="Email" type="email"/>
+    <input aria-label="Password" class="w-full mb-6 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="password" placeholder="Password" type="password"/>
+    <div class="flex flex-col space-y-3">
+     <button class="btn-primary w-full py-3 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition" onclick="login()">
+      Masuk
+     </button>
+     <button class="btn-secondary w-full py-3 rounded-lg font-semibold text-blue-600 border border-blue-600 hover:bg-blue-50 transition" onclick="register()">
+      Daftar
+     </button>
+     <button class="text-blue-600 underline mt-2 text-sm hover:text-blue-800 transition" onclick="resetPassword()">
+      Lupa Password?
+     </button>
+    </div>
+   </section>
+   <section aria-live="polite" class="space-y-6 hidden" id="mainApp">
+    <article class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn" id="home">
+     <h2 class="text-xl font-semibold mb-3 text-gray-900">
+      Selamat datang di Beranda GlooVish!
+     </h2>
+     <p class="text-gray-700 leading-relaxed">
+      Nikmati konten terbaru dan terpopuler yang kami sajikan untuk Anda. Jelajahi berbagai fitur menarik dan tetap terhubung dengan komunitas kami.
+     </p>
+     <img alt="Ilustrasi beranda aplikasi GlooVish dengan tampilan konten dan interaksi pengguna" class="mt-4 rounded-lg shadow-sm w-full object-cover" height="300" src="https://storage.googleapis.com/a1aa/image/336a0e50-0600-4570-0ff1-a5ab5dcabe50.jpg" width="600"/>
+    </article>
+    <article class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn" id="upload">
+     <h2 class="text-xl font-semibold mb-3 text-gray-900">
+      Upload Foto atau Video Anda di sini
+     </h2>
+     <p class="text-gray-700 mb-4">
+      Bagikan momen terbaik Anda dengan komunitas GlooVish. Pilih file dari perangkat Anda dan unggah dengan mudah.
+     </p>
+     <form class="flex flex-col gap-4" id="uploadForm">
+      <input accept="image/*,video/*" aria-label="Pilih file foto atau video" class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="fileInput" type="file"/>
+      <button class="btn-primary w-max px-6 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition" disabled="" id="uploadBtn" type="submit">
+       Upload
+      </button>
+     </form>
+     <div class="mt-6" hidden="" id="uploadPreviewContainer">
+      <h3 class="text-lg font-semibold mb-2 text-gray-900">
+       Preview Upload
+      </h3>
+      <div class="rounded-lg shadow-sm w-full max-h-96 overflow-hidden flex justify-center items-center bg-gray-50" id="uploadPreview">
+      </div>
+     </div>
+    </article>
+    <article class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn" id="notifications">
+     <h2 class="text-xl font-semibold mb-3 text-gray-900">
+      Notifikasi Anda akan muncul di sini
+     </h2>
+     <ul class="divide-y divide-gray-200 max-h-96 overflow-y-auto" id="notifList">
+     </ul>
+     <img alt="Ilustrasi notifikasi masuk di aplikasi GlooVish dengan ikon lonceng dan daftar pesan" class="mt-6 rounded-lg shadow-sm w-full object-cover" height="300" src="https://storage.googleapis.com/a1aa/image/7c2406ed-e8ae-40e6-8228-99f66938cdbe.jpg" width="600"/>
+    </article>
+    <article class="tab bg-white rounded-xl shadow-md p-6 animate-fadeIn" id="profile">
+     <h2 class="text-xl font-semibold mb-3 text-gray-900">
+      Profil pengguna
+     </h2>
+     <p class="text-gray-700 mb-4">
+      Edit profil, lihat pengikut, dan kelola pengaturan akun Anda dengan mudah.
+     </p>
+     <div class="flex flex-col md:flex-row md:items-center md:gap-6">
+      <img alt="Avatar profil pengguna aplikasi GlooVish" class="rounded-full w-36 h-36 object-cover shadow-md mx-auto md:mx-0" height="150" id="profileAvatar" src="https://storage.googleapis.com/a1aa/image/67f51bf8-dbbe-4292-fcc2-c2cca4cf2a50.jpg" width="150"/>
+      <div class="flex-1 mt-4 md:mt-0">
+       <h3 class="text-lg font-semibold text-gray-900" id="profileNameDisplay">
+        Nama Pengguna
+       </h3>
+       <p class="text-gray-600 mb-2" id="profileEmailDisplay">
+        email@example.com
+       </p>
+       <button class="btn-primary px-5 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition w-full md:w-auto" id="editProfileBtn" onclick="openEditProfile()">
+        Edit Profil
+       </button>
+      </div>
+     </div>
+     <div class="mt-6">
+      <h4 class="text-md font-semibold text-gray-900 mb-2">
+       Pengikut Anda
+      </h4>
+      <ul class="flex flex-wrap gap-4" id="followersList">
+       <li class="flex flex-col items-center w-20">
+        <img alt="Foto profil pengikut 1 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/c23f9332-e097-48bd-069b-619c8391c4b5.jpg" width="60"/>
+        <span class="text-xs mt-1 truncate w-full text-center">
+         Follower1
+        </span>
+       </li>
+       <li class="flex flex-col items-center w-20">
+        <img alt="Foto profil pengikut 2 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/bf058839-fa3e-43e9-37e1-53583dc712f4.jpg" width="60"/>
+        <span class="text-xs mt-1 truncate w-full text-center">
+         Follower2
+        </span>
+       </li>
+       <li class="flex flex-col items-center w-20">
+        <img alt="Foto profil pengikut 3 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/c7e8c6d8-29e9-44e4-e625-50ec467c5212.jpg" width="60"/>
+        <span class="text-xs mt-1 truncate w-full text-center">
+         Follower3
+        </span>
+       </li>
+       <li class="flex flex-col items-center w-20">
+        <img alt="Foto profil pengikut 4 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/bffb460f-d62c-4a3a-c52a-10f4c1d2faad.jpg" width="60"/>
+        <span class="text-xs mt-1 truncate w-full text-center">
+         Follower4
+        </span>
+       </li>
+       <li class="flex flex-col items-center w-20">
+        <img alt="Foto profil pengikut 5 aplikasi GlooVish" class="rounded-full w-14 h-14 object-cover shadow-sm" height="60" src="https://storage.googleapis.com/a1aa/image/34cf880d-4edd-4614-bb00-1e0a3ad11e03.jpg" width="60"/>
+        <span class="text-xs mt-1 truncate w-full text-center">
+         Follower5
+        </span>
+       </li>
+      </ul>
+     </div>
+    </article>
+   </section>
+  </main>
+  <nav aria-label="Navigasi bawah" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 flex justify-around items-center py-2 px-1 md:hidden z-50 shadow-inner">
+   <button aria-label="Beranda" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold relative" onclick="switchTab('home')">
+    <i class="fas fa-home text-xl">
+    </i>
+    <span class="mt-0.5">
+     Home
+    </span>
+   </button>
+   <button aria-label="Upload" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold" onclick="switchTab('upload')">
+    <i class="fas fa-upload text-xl">
+    </i>
+    <span class="mt-0.5">
+     Upload
+    </span>
+   </button>
+   <button aria-label="Notifikasi" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold relative" onclick="switchTab('notifications')">
+    <i class="fas fa-bell text-xl">
+    </i>
+    <span class="mt-0.5">
+     Notifikasi
+    </span>
+    <span class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5 hidden" id="notifBadge">
+    </span>
+   </button>
+   <button aria-label="Profil" class="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-colors text-xs font-semibold" onclick="switchTab('profile')">
+    <i class="fas fa-user text-xl">
+    </i>
+    <span class="mt-0.5">
+     Profil
+    </span>
+   </button>
+  </nav>
+  <div aria-hidden="true" aria-labelledby="editProfileTitle" aria-modal="true" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 hidden" id="editProfileModal" role="dialog">
+   <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
+    <h3 class="text-xl font-semibold mb-4 text-gray-900" id="editProfileTitle">
+     Edit Profil
+    </h3>
+    <form class="space-y-4" id="editProfileForm">
+     <div>
+      <label class="block text-gray-700 font-medium mb-1" for="editName">
+       Nama Pengguna
+      </label>
+      <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="editName" name="name" required="" type="text"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-medium mb-1" for="editEmail">
+       Email
+      </label>
+      <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="editEmail" name="email" required="" type="email"/>
+     </div>
+     <div>
+      <label class="block text-gray-700 font-medium mb-1" for="editAvatarUrl">
+       URL Avatar Profil
+      </label>
+      <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="editAvatarUrl" name="avatarUrl" placeholder="https://example.com/avatar.jpg" type="url"/>
+     </div>
+     <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <button class="btn-secondary px-4 py-2 rounded-lg font-semibold text-blue-600 border border-blue-600 hover:bg-blue-50 transition" id="cancelEditBtn" type="button">
+       Batal
+      </button>
+      <button class="btn-primary px-4 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition" type="submit">
+       Simpan
+      </button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <script type="module">
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+   import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateEmail } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+   import { getDatabase, ref, onValue, set, push, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+   import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
+   const firebaseConfig = {
+     apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+     authDomain: "projectchat01-d16bc.firebaseapp.com",
+     databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+     projectId: "projectchat01-d16bc",
+     storageBucket: "projectchat01-d16bc.appspot.com",
+     messagingSenderId: "163313653543",
+     appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02",
+     measurementId: "G-M8JFL7S0TV"
+   };
+
+   const app = initializeApp(firebaseConfig);
+   const analytics = getAnalytics(app);
+   const auth = getAuth(app);
+   const db = getDatabase(app);
+   const storage = getStorage(app);
+
+   function switchTab(tabId) {
+     const tabs = document.querySelectorAll('.tab');
+     tabs.forEach(t => {
+       t.style.display = 'none';
+       t.classList.remove('animate-fadeIn'); // Remove to allow re-animation on next display
+     });
+     const activeTab = document.getElementById(tabId);
+     activeTab.style.display = 'block';
+     activeTab.classList.add('animate-fadeIn');
+
+     if (tabId === 'notifications') {
+       document.getElementById('notifBadge').style.display = 'none';
+       document.getElementById('notifBadgeDesktop').style.display = 'none';
+     }
+   }
+
+   // Set default tab on load
+   switchTab('home');
+
+   const notifBadgeMobile = document.getElementById("notifBadge");
+   const notifBadgeDesktop = document.getElementById("notifBadgeDesktop");
+   const notifList = document.getElementById("notifList");
+
+   const notifRef = ref(db, "notifications");
+   onValue(notifRef, (snapshot) => {
+     const val = snapshot.val();
+     if (val) {
+       const keys = Object.keys(val);
+       const count = keys.length;
+       if (count > 0) {
+         notifBadgeMobile.innerText = count;
+         notifBadgeMobile.style.display = 'inline';
+         notifBadgeDesktop.innerText = count;
+         notifBadgeDesktop.style.display = 'inline';
+       } else {
+         notifBadgeMobile.style.display = 'none';
+         notifBadgeDesktop.style.display = 'none';
+       }
+       notifList.innerHTML = '';
+       keys.forEach(key => {
+         const notif = val[key];
+         const li = document.createElement('li');
+         li.className = 'py-3 px-2 hover:bg-gray-50 cursor-pointer flex items-start gap-3';
+         li.tabIndex = 0;
+         li.setAttribute('role', 'listitem');
+         li.innerHTML = `
+           <i class="fas fa-bell text-blue-500 mt-1 flex-shrink-0"></i>
+           <div class="flex-1">
+             <p class="font-semibold text-gray-900">${notif.title || 'Notifikasi'}</p>
+             <p class="text-gray-700 text-sm">${notif.message || ''}</p>
+             <time class="text-gray-400 text-xs">${notif.time || ''}</time>
+           </div>
+         `;
+         notifList.appendChild(li);
+       });
+     } else {
+       notifBadgeMobile.style.display = 'none';
+       notifBadgeDesktop.style.display = 'none';
+       notifList.innerHTML = '<li class="py-3 px-2 text-gray-500 text-center">Tidak ada notifikasi.</li>';
+     }
+   });
+
+   async function login() {
+     const email = document.getElementById("email").value.trim();
+     const password = document.getElementById("password").value;
+     if (!email || !password) {
+       alert("Email dan password harus diisi.");
+       return;
+     }
+     try {
+       await signInWithEmailAndPassword(auth, email, password);
+       // loadUserProfile() will be called by onAuthStateChanged
+     } catch (err) {
+       alert(err.message);
+     }
+   }
+
+   async function register() {
+     const email = document.getElementById("email").value.trim();
+     const password = document.getElementById("password").value;
+     if (!email || !password) {
+       alert("Email dan password harus diisi.");
+       return;
+     }
+     try {
+       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+       const user = userCredential.user;
+       const userRef = ref(db, 'users/' + user.uid);
+       await set(userRef, {
+         name: user.email.split('@')[0], // Default name from email
+         email: user.email,
+         avatarUrl: "https://placehold.co/150x150?text=Avatar+Profil"
+       });
+       // loadUserProfile() will be called by onAuthStateChanged
+     } catch (err) {
+       alert(err.message);
+     }
+   }
+
+   async function resetPassword() {
+     const email = document.getElementById("email").value.trim();
+     if (!email) {
+       alert("Masukkan email terlebih dahulu.");
+       return;
+     }
+     try {
+       await sendPasswordResetEmail(auth, email);
+       alert("Email reset password telah dikirim.");
+     } catch (err) {
+       alert(err.message);
+     }
+   }
+
+   function showApp() {
+     document.getElementById("authSection").style.display = "none";
+     document.getElementById("mainApp").style.display = "block";
+     switchTab('home'); // Ensure home tab is shown when app starts
+     loadUserProfile();
+   }
+
+   onAuthStateChanged(auth, (user) => {
+     if (user) {
+       showApp();
+     } else {
+       document.getElementById("authSection").style.display = "block";
+       document.getElementById("mainApp").style.display = "none";
+     }
+   });
+
+   async function loadUserProfile() {
+     const user = auth.currentUser;
+     if (!user) return;
+     const userRef = ref(db, 'users/' + user.uid);
+     try {
+       const snapshot = await get(userRef);
+       const data = snapshot.val();
+       if (data) {
+         document.getElementById('profileNameDisplay').textContent = data.name || 'Nama Pengguna';
+         document.getElementById('profileEmailDisplay').textContent = data.email || user.email || 'email@example.com';
+         document.getElementById('profileAvatar').src = data.avatarUrl || "https://placehold.co/150x150?text=Avatar+Profil";
+       } else {
+         // If no profile data exists in DB, use Firebase Auth data
+         document.getElementById('profileNameDisplay').textContent = user.email ? user.email.split('@')[0] : 'Nama Pengguna';
+         document.getElementById('profileEmailDisplay').textContent = user.email || 'email@example.com';
+         document.getElementById('profileAvatar').src = "https://placehold.co/150x150?text=Avatar+Profil";
+       }
+     } catch (error) {
+       console.error("Error loading user profile:", error);
+       // Fallback to Firebase Auth data in case of DB error
+       document.getElementById('profileNameDisplay').textContent = user.email ? user.email.split('@')[0] : 'Nama Pengguna';
+       document.getElementById('profileEmailDisplay').textContent = user.email || 'email@example.com';
+       document.getElementById('profileAvatar').src = "https://placehold.co/150x150?text=Avatar+Profil";
+     }
+   }
+
+   // Modal controls
+   const editProfileModal = document.getElementById('editProfileModal');
+   const editProfileForm = document.getElementById('editProfileForm');
+   const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+   function openEditProfile() {
+     const user = auth.currentUser;
+     if (!user) {
+       alert("Anda harus login terlebih dahulu.");
+       return;
+     }
+     const userRef = ref(db, 'users/' + user.uid);
+     get(userRef).then(snapshot => {
+       const data = snapshot.val() || {};
+       document.getElementById('editName').value = data.name || (user.email ? user.email.split('@')[0] : '');
+       document.getElementById('editEmail').value = data.email || user.email || '';
+       document.getElementById('editAvatarUrl').value = data.avatarUrl || "";
+       showModal();
+     }).catch(error => {
+       console.error("Error fetching profile for edit:", error);
+       alert("Gagal memuat data profil untuk diedit: " + error.message);
+     });
+   }
+
+   function showModal() {
+     editProfileModal.classList.remove('hidden');
+     editProfileModal.setAttribute('aria-hidden', 'false');
+   }
+
+   function hideModal() {
+     editProfileModal.classList.add('hidden');
+     editProfileModal.setAttribute('aria-hidden', 'true');
+   }
+
+   cancelEditBtn.addEventListener('click', hideModal);
+
+   editProfileForm.addEventListener('submit', async (e) => {
+     e.preventDefault();
+     const user = auth.currentUser;
+     if (!user) {
+       alert("Anda harus login terlebih dahulu.");
+       return;
+     }
+
+     const newName = document.getElementById('editName').value.trim();
+     const newEmail = document.getElementById('editEmail').value.trim();
+     const newAvatarUrl = document.getElementById('editAvatarUrl').value.trim();
+
+     if (!newName || !newEmail) {
+       alert("Nama pengguna dan email tidak boleh kosong.");
+       return;
+     }
+
+     try {
+       const userRef = ref(db, 'users/' + user.uid);
+       const updates = {};
+
+       // Update email in Firebase Authentication if changed
+       if (user.email !== newEmail) {
+         await updateEmail(user, newEmail);
+         updates.email = newEmail;
+       }
+
+       // Update name and avatarUrl in Realtime Database
+       updates.name = newName;
+       // Provide a default avatar if the URL is empty
+       updates.avatarUrl = newAvatarUrl || "https://placehold.co/150x150?text=Avatar+Profil";
+
+       // Use set with updates object to update specific fields
+       await set(userRef, updates); 
+
+       alert("Profil berhasil diperbarui!");
+       hideModal();
+       loadUserProfile(); // Reload profile data on the page
+     } catch (error) {
+       console.error("Error updating profile:", error);
+       alert("Gagal memperbarui profil: " + error.message);
+     }
+   });
+
+   // Fitur upload
+   const fileInput = document.getElementById('fileInput');
+   const uploadBtn = document.getElementById('uploadBtn');
+   const uploadPreviewContainer = document.getElementById('uploadPreviewContainer');
+   const uploadPreview = document.getElementById('uploadPreview');
+   const uploadForm = document.getElementById('uploadForm');
+
+   fileInput.addEventListener('change', () => {
+     if (fileInput.files.length > 0) {
+       uploadBtn.disabled = false;
+       const file = fileInput.files[0];
+       const reader = new FileReader();
+
+       reader.onload = (e) => {
+         uploadPreview.innerHTML = ''; // Clear previous preview
+         if (file.type.startsWith('image/')) {
+           const img = document.createElement('img');
+           img.src = e.target.result;
+           img.className = 'max-w-full max-h-full object-contain';
+           uploadPreview.appendChild(img);
+         } else if (file.type.startsWith('video/')) {
+           const video = document.createElement('video');
+           video.src = e.target.result;
+           video.controls = true;
+           video.className = 'max-w-full max-h-full object-contain';
+           uploadPreview.appendChild(video);
+         }
+         uploadPreviewContainer.hidden = false;
+       };
+       reader.readAsDataURL(file);
+     } else {
+       uploadBtn.disabled = true;
+       uploadPreviewContainer.hidden = true;
+       uploadPreview.innerHTML = '';
+     }
+   });
+
+   uploadForm.addEventListener('submit', async (e) => {
+     e.preventDefault();
+     const file = fileInput.files[0];
+     if (!file) {
+       alert("Pilih file untuk diunggah.");
+       return;
+     }
+
+     const user = auth.currentUser;
+     if (!user) {
+       alert("Anda harus login untuk mengunggah file.");
+       return;
+     }
+
+     const storageRef = sRef(storage, `uploads/${user.uid}/${Date.now()}_${file.name}`);
+     try {
+       await uploadBytes(storageRef, file);
+       const downloadURL = await getDownloadURL(storageRef);
+       alert("File berhasil diunggah! URL: " + downloadURL);
+       // Anda bisa menyimpan downloadURL ini ke Realtime Database jika ingin melacak unggahan pengguna
+       // Misalnya: await push(ref(db, `user_uploads/${user.uid}`), { url: downloadURL, timestamp: Date.now() });
+       fileInput.value = ''; // Clear input
+       uploadBtn.disabled = true;
+       uploadPreviewContainer.hidden = true;
+       uploadPreview.innerHTML = '';
+     } catch (error) {
+       console.error("Error uploading file:", error);
+       alert("Gagal mengunggah file: " + error.message);
+     }
+   });
+
+   // Make functions globally accessible for HTML onclick attributes
+   window.switchTab = switchTab;
+   window.login = login;
+   window.register = register;
+   window.resetPassword = resetPassword;
+   window.openEditProfile = openEditProfile;
+  </script>
+ </body>
 </html>
