@@ -1,304 +1,181 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GlooVish</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
-    .container { padding: 1rem; }
-    .hidden { display: none; }
-    .nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background: #fff; border-top: 1px solid #ccc; }
-    .nav button { flex: 1; padding: 1rem; border: none; background: #fff; }
-    .post, .user-item { background: #fff; padding: 1rem; margin: 1rem 0; border-radius: 8px; }
-    input, button { padding: 0.5rem; margin: 0.25rem 0; width: 100%; }
-    .btn { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
-    .btn:hover { background: #0056b3; }
-    img { max-width: 100px; border-radius: 50%; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      color: #333;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 15px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #3b82f6;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 0.85rem;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      position: relative;
+    }
+    .bottom-nav button i {
+      font-size: 1.2rem;
+    }
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      background: red;
+      color: white;
+      font-size: 0.6rem;
+      padding: 2px 5px;
+      border-radius: 12px;
+    }
+    .container {
+      padding: 20px;
+      padding-bottom: 70px;
+      max-width: 800px;
+      margin: auto;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    .tab {
+      display: none;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .btn {
+      background: #3b82f6;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #2563eb;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .bottom-nav { display: flex; }
+    }
   </style>
 </head>
-<body>
-  <div class="container" id="authSection">
-    <h2>Login / Register</h2>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <button onclick="register()">Register</button>
-  </div>
+<body><header>
+  <h1>GlooVish</h1>
+  <nav>
+    <button onclick="switchTab('home')"><i class="fas fa-home"></i> Beranda</button>
+    <button onclick="switchTab('upload')"><i class="fas fa-upload"></i> Upload</button>
+    <button onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Notifikasi</button>
+    <button onclick="switchTab('profile')"><i class="fas fa-user"></i> Profil</button>
+  </nav>
+</header><div class="bottom-nav">
+  <button onclick="switchTab('home')">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
+  </button>
+  <button onclick="switchTab('upload')">
+    <i class="fas fa-upload"></i>
+    <span>Upload</span>
+  </button>
+  <button onclick="switchTab('notifications')">
+    <i class="fas fa-bell"></i>
+    <span>Notifikasi</span>
+    <span class="badge" id="notifBadge">0</span>
+  </button>
+  <button onclick="switchTab('profile')">
+    <i class="fas fa-user"></i>
+    <span>Profil</span>
+  </button>
+</div><div class="container" id="mainApp">
+  <div id="home" class="tab" style="display:block;">Selamat datang di Beranda GlooVish!</div>
+  <div id="upload" class="tab">Upload Foto atau Video Anda di sini.</div>
+  <div id="notifications" class="tab">Notifikasi Anda akan muncul di sini.</div>
+  <div id="profile" class="tab">Profil pengguna. Edit profil, lihat pengikut, dan lainnya.</div>
+</div><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
+    authDomain: "binzchat-17058.firebaseapp.com",
+    databaseURL: "https://binzchat-17058-default-rtdb.firebaseio.com",
+    projectId: "binzchat-17058",
+    storageBucket: "binzchat-17058.appspot.com",
+    messagingSenderId: "709921367866",
+    appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
+    measurementId: "G-TYLVHJWRD2"
+  };
 
-  <div class="container hidden" id="home">
-    <h2>Beranda</h2>
-    <div>
-      <input type="file" id="media" />
-      <input type="text" id="caption" placeholder="Caption" />
-      <button onclick="uploadPost()">Unggah</button>
-    </div>
-    <div id="feed"></div>
-  </div>
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-  <div class="container hidden" id="users">
-    <h2>Pengguna</h2>
-    <div id="userList"></div>
-  </div>
-
-  <div class="container hidden" id="profile">
-    <h2>Profil</h2>
-    <img id="profilePicPreview" src="https://via.placeholder.com/100" /><br/>
-    <input type="text" id="username" placeholder="Nama Anda" />
-    <input type="file" id="profilePic" />
-    <button onclick="saveProfile()">Simpan Profil</button>
-    <div>
-      <strong>Pengikut:</strong> <span id="followersCount">0</span><br/>
-      <strong>Mengikuti:</strong> <span id="followingCount">0</span><br/>
-    </div>
-    <button class="btn" onclick="showFollowList('followers')">Lihat Pengikut</button>
-    <button class="btn" onclick="showFollowList('following')">Lihat Mengikuti</button>
-    <div id="followList"></div>
-    <button id="backToMyProfile" class="btn" onclick="backToMyProfile()" style="display:none">Kembali ke Profil Saya</button>
-    <button id="followButton" class="btn" onclick="toggleFollowViewedUser()" style="display:none">Follow</button>
-  </div>
-
-  <div class="nav">
-    <button onclick="switchTab('home')">🏠</button>
-    <button onclick="switchTab('users')">👥</button>
-    <button onclick="switchTab('profile')">👤</button>
-  </div>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
-      authDomain: "binzchat-17058.firebaseapp.com",
-      databaseURL: "https://binzchat-17058-default-rtdb.firebaseio.com",
-      projectId: "binzchat-17058",
-      storageBucket: "binzchat-17058.appspot.com",
-      messagingSenderId: "709921367866",
-      appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
-      measurementId: "G-TYLVHJWRD2"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    function switchTab(tab) {
-      ['home', 'users', 'profile'].forEach(t => document.getElementById(t).classList.add('hidden'));
-      document.getElementById(tab).classList.remove('hidden');
-    }
-
-    function login() {
-      const email = email.value;
-      const password = password.value;
-      auth.signInWithEmailAndPassword(email, password).then(() => {
-        document.getElementById('authSection').classList.add('hidden');
-        document.getElementById('home').classList.remove('hidden');
-        renderFeed();
-        listUsers();
-        loadProfile();
-      });
-    }
-
-    function register() {
-      const email = email.value;
-      const password = password.value;
-      auth.createUserWithEmailAndPassword(email, password).then(() => login());
-    }
-
-    function saveProfile() {
-      const file = document.getElementById('profilePic').files[0];
-      const name = document.getElementById('username').value;
-      const uid = auth.currentUser.uid;
-      const photoURL = file ? URL.createObjectURL(file) : '';
-      db.ref('users/' + uid).update({ name, photoURL });
-      document.getElementById('profilePicPreview').src = photoURL;
-    }
-
-    function loadProfile() {
-      const uid = auth.currentUser.uid;
-      db.ref('users/' + uid).on('value', snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          document.getElementById('username').value = data.name || '';
-          document.getElementById('profilePicPreview').src = data.photoURL || '';
-          document.getElementById('followersCount').innerText = data.followers ? Object.keys(data.followers).length : 0;
-          document.getElementById('followingCount').innerText = data.following ? Object.keys(data.following).length : 0;
-        }
-      });
-    }
-
-    function listUsers() {
-      db.ref('users').on('value', snapshot => {
-        const userList = document.getElementById('userList');
-        userList.innerHTML = '';
-        const currentUid = auth.currentUser.uid;
-        snapshot.forEach(userSnap => {
-          const userId = userSnap.key;
-          if (userId === currentUid) return;
-          const data = userSnap.val();
-          const div = document.createElement('div');
-          div.className = 'user-item';
-          const name = document.createElement('span');
-          name.textContent = data.name;
-          name.style.cursor = 'pointer';
-          name.onclick = () => viewUserProfile(userId);
-          const btn = document.createElement('button');
-          btn.textContent = 'Follow';
-          db.ref(`followers/${userId}/${currentUid}`).once('value', snap => {
-            if (snap.exists()) btn.textContent = 'Unfollow';
-          });
-          btn.onclick = () => {
-            const updates = {};
-            const path1 = `followers/${userId}/${currentUid}`;
-            const path2 = `following/${currentUid}/${userId}`;
-            db.ref(path1).once('value', snap => {
-              if (snap.exists()) {
-                updates[path1] = null;
-                updates[path2] = null;
-              } else {
-                updates[path1] = true;
-                updates[path2] = true;
-              }
-              db.ref().update(updates);
-            });
-          };
-          div.appendChild(name);
-          div.appendChild(btn);
-          userList.appendChild(div);
-        });
-      });
-    }
-
-    function uploadPost() {
-      const media = document.getElementById('media').files[0];
-      const caption = document.getElementById('caption').value;
-      if (!media) return;
-      const mediaURL = URL.createObjectURL(media);
-      const postId = db.ref('posts').push().key;
-      db.ref('posts/' + postId).set({
-        uid: auth.currentUser.uid,
-        caption,
-        mediaURL
-      });
-    }
-
-    function renderFeed() {
-      const feed = document.getElementById('feed');
-      db.ref('posts').on('value', snapshot => {
-        feed.innerHTML = '';
-        const posts = snapshot.val();
-        if (!posts) return;
-        Object.entries(posts).reverse().forEach(([id, post]) => {
-          const div = document.createElement('div');
-          div.className = 'post';
-          div.innerHTML = `
-            <img src="${post.mediaURL}" />
-            <p><strong>${post.caption}</strong></p>
-            <button onclick="toggleLike('${id}')">❤️ Like</button>
-            <span>${post.likes ? Object.keys(post.likes).length : 0} suka</span>
-            <input type="text" id="comment-${id}" placeholder="Tulis komentar..." />
-            <button onclick="addComment('${id}')">Kirim</button>
-            <div id="comments-${id}"></div>
-          `;
-          feed.appendChild(div);
-          renderComments(id);
-        });
-      });
-    }
-
-    function toggleLike(id) {
-      const uid = auth.currentUser.uid;
-      const refLike = db.ref(`posts/${id}/likes/${uid}`);
-      refLike.once('value', snap => {
-        if (snap.exists()) refLike.remove();
-        else refLike.set(true);
-      });
-    }
-
-    function addComment(id) {
-      const text = document.getElementById(`comment-${id}`).value;
-      const uid = auth.currentUser.uid;
-      if (text) {
-        db.ref(`posts/${id}/comments`).push({ uid, text });
-        document.getElementById(`comment-${id}`).value = '';
+  const notifRef = db.ref("notifications");
+  notifRef.on("value", snapshot => {
+    const val = snapshot.val();
+    const notifBadge = document.getElementById("notifBadge");
+    if (val) {
+      const count = Object.keys(val).length;
+      if (count > 0) {
+        notifBadge.innerText = count;
+        notifBadge.style.display = 'inline';
+      } else {
+        notifBadge.style.display = 'none';
       }
+    } else {
+      notifBadge.style.display = 'none';
     }
+  });
 
-    function renderComments(id) {
-      const commentDiv = document.getElementById(`comments-${id}`);
-      db.ref(`posts/${id}/comments`).on('value', snap => {
-        commentDiv.innerHTML = '';
-        const data = snap.val();
-        if (!data) return;
-        Object.values(data).forEach(c => {
-          const p = document.createElement('p');
-          p.textContent = c.text;
-          commentDiv.appendChild(p);
-        });
-      });
+  function switchTab(tabId) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => t.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+
+    if (tabId === 'notifications') {
+      document.getElementById('notifBadge').style.display = 'none';
     }
-
-    function showFollowList(type) {
-      const uid = auth.currentUser.uid;
-      const list = document.getElementById('followList');
-      list.innerHTML = `<h3>${type === 'followers' ? 'Pengikut' : 'Mengikuti'}</h3>`;
-      db.ref(`${type}/${uid}`).once('value', snap => {
-        if (!snap.exists()) return list.innerHTML += '<p>Belum ada.</p>';
-        Object.keys(snap.val()).forEach(id => {
-          db.ref('users/' + id).once('value', u => {
-            const div = document.createElement('div');
-            div.textContent = u.val().name;
-            div.onclick = () => viewUserProfile(id);
-            list.appendChild(div);
-          });
-        });
-      });
-    }
-
-    let viewedUserId = null;
-    function viewUserProfile(uid) {
-      viewedUserId = uid;
-      switchTab('profile');
-      document.getElementById('backToMyProfile').style.display = (uid === auth.currentUser.uid) ? 'none' : 'block';
-      document.getElementById('followButton').style.display = (uid === auth.currentUser.uid) ? 'none' : 'inline-block';
-      db.ref('users/' + uid).once('value', snap => {
-        const data = snap.val();
-        document.getElementById('username').value = data.name;
-        document.getElementById('profilePicPreview').src = data.photoURL;
-        document.getElementById('followersCount').textContent = data.followers ? Object.keys(data.followers).length : 0;
-        document.getElementById('followingCount').textContent = data.following ? Object.keys(data.following).length : 0;
-      });
-    }
-
-    function backToMyProfile() {
-      viewUserProfile(auth.currentUser.uid);
-    }
-
-    function toggleFollowViewedUser() {
-      const current = auth.currentUser.uid;
-      db.ref(`followers/${viewedUserId}/${current}`).once('value', snap => {
-        const updates = {};
-        if (snap.exists()) {
-          updates[`followers/${viewedUserId}/${current}`] = null;
-          updates[`following/${current}/${viewedUserId}`] = null;
-        } else {
-          updates[`followers/${viewedUserId}/${current}`] = true;
-          updates[`following/${current}/${viewedUserId}`] = true;
-        }
-        db.ref().update(updates).then(() => viewUserProfile(viewedUserId));
-      });
-    }
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('authSection').classList.add('hidden');
-        document.getElementById('home').classList.remove('hidden');
-        switchTab('home');
-        renderFeed();
-        listUsers();
-        loadProfile();
-      }
-    });
-  </script>
-</body>
+  }
+</script></body>
 </html>
