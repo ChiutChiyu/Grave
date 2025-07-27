@@ -1,229 +1,229 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GlooVish</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>GlooVish - Social Media</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f0f2f5;
-      color: #333;
+    body { font-family: sans-serif; margin: 0; background: #111; color: #fff; }
+    .card { background: #1e1e1e; margin: 1em; padding: 1em; border-radius: 10px; }
+    input, button, textarea {
+      padding: 0.6em; margin: 0.3em 0; border: none; border-radius: 6px;
+      width: 100%; box-sizing: border-box;
     }
-    header {
-      background-color: #ffffff;
-      padding: 15px 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: #3b82f6;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      z-index: 1000;
-    }
-    .bottom-nav button {
-      background: none;
-      border: none;
-      font-size: 0.85rem;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      cursor: pointer;
-      position: relative;
-    }
-    .bottom-nav button i {
-      font-size: 1.2rem;
-    }
-    .badge {
-      position: absolute;
-      top: -4px;
-      right: -6px;
-      background: red;
-      color: white;
-      font-size: 0.6rem;
-      padding: 2px 5px;
-      border-radius: 12px;
-    }
-    .container {
-      padding: 20px;
-      padding-bottom: 70px;
-      max-width: 800px;
-      margin: auto;
-      animation: fadeIn 0.4s ease-in-out;
-    }
-    .tab { display: none; }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
-    .btn {
-      background: #3b82f6;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .btn:hover {
-      background: #2563eb;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @media (max-width: 768px) {
-      nav { display: none; }
-      .bottom-nav { display: flex; }
-    }
-    #authSection { display: none; text-align: center; padding: 20px; }
-    input { display: block; margin: 10px auto; padding: 8px; width: 80%; max-width: 300px; border-radius: 6px; border: 1px solid #ccc; }
-    .link-btn { background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.9rem; margin-top: 5px; text-decoration: underline; }
+    video, img { max-width: 100%; border-radius: 8px; }
+    nav { position: fixed; bottom: 0; width: 100%; background: #222; display: flex; justify-content: space-around; padding: 0.5em 0; }
+    nav button { background: none; color: white; font-size: 1em; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>GlooVish</h1>
-  <nav>
-    <button onclick="switchTab('home')"><i class="fas fa-home"></i> Beranda</button>
-    <button onclick="switchTab('upload')"><i class="fas fa-upload"></i> Upload</button>
-    <button onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Notifikasi</button>
-    <button onclick="switchTab('profile')"><i class="fas fa-user"></i> Profil</button>
-  </nav>
-</header>
-
-<div class="bottom-nav">
-  <button onclick="switchTab('home')"><i class="fas fa-home"></i><span>Home</span></button>
-  <button onclick="switchTab('upload')"><i class="fas fa-upload"></i><span>Upload</span></button>
-  <button onclick="switchTab('notifications')"><i class="fas fa-bell"></i><span>Notifikasi</span><span class="badge" id="notifBadge">0</span></button>
-  <button onclick="switchTab('profile')"><i class="fas fa-user"></i><span>Profil</span></button>
-</div>
+<h2>GlooVish</h2>
 
 <div id="authSection">
-  <h2>Masuk atau Daftar</h2>
   <input type="email" id="email" placeholder="Email" />
   <input type="password" id="password" placeholder="Password" />
-  <button class="btn" onclick="login()">Masuk</button>
-  <button class="btn" onclick="register()">Daftar</button>
-  <button class="link-btn" onclick="resetPassword()">Lupa Password?</button>
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+  <button onclick="resetPassword()">Reset Password</button>
 </div>
 
-<div class="container" id="mainApp">
-  <div id="home" class="tab">Selamat datang di Beranda GlooVish!</div>
-  <div id="upload" class="tab">Upload Foto atau Video Anda di sini.</div>
-  <div id="notifications" class="tab">Notifikasi Anda akan muncul di sini.</div>
-  <div id="profile" class="tab">Profil pengguna. Edit profil, lihat pengikut, dan lainnya.</div>
+<div id="mainApp" style="display:none;">
+  <button onclick="logout()">Logout</button>
+  <input type="file" id="mediaUpload" />
+  <textarea id="caption" placeholder="Caption..."></textarea>
+  <button onclick="uploadPost()">Upload Post</button>
+  <div id="feed"></div>
+  <div id="publicProfile" class="card"></div>
+  <div id="chatBox" class="card" style="max-height: 300px; overflow-y: auto;"></div>
+  <input type="text" id="chatMessage" placeholder="Tulis pesan..." />
+  <button onclick="sendMessage('TARGET_USER_ID', document.getElementById('chatMessage').value)">Kirim</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<nav>
+  <button onclick="loadFeed()">🏠 Feed</button>
+  <button onclick="viewProfile()">👤 Profile</button>
+  <button onclick="showNotifications()">🔔</button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
-    authDomain: "binzchat-17058.firebaseapp.com",
-    databaseURL: "https://binzchat-17058-default-rtdb.firebaseio.com",
-    projectId: "binzchat-17058",
-    storageBucket: "binzchat-17058.appspot.com",
-    messagingSenderId: "709921367866",
-    appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
-    measurementId: "G-TYLVHJWRD2"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+const firebaseConfig = {
+  apiKey: "AIzaSyBH4ZgeAsopq2cEq-GtdSZO_GDS1pgIbEs",
+  authDomain: "binzchat-17058.firebaseapp.com",
+  databaseURL: "https://binzchat-17058-default-rtdb.firebaseio.com",
+  projectId: "binzchat-17058",
+  storageBucket: "binzchat-17058.appspot.com",
+  messagingSenderId: "709921367866",
+  appId: "1:709921367866:web:0f1abaef7152dfc0d11203",
+  measurementId: "G-TYLVHJWRD2"
+};
 
-  function switchTab(tabId) {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(t => t.style.display = 'none');
-    document.getElementById(tabId).style.display = 'block';
-    if (tabId === 'notifications') {
-      document.getElementById('notifBadge').style.display = 'none';
-    }
-  }
-
-  const notifRef = db.ref("notifications");
-  notifRef.on("value", snapshot => {
-    const val = snapshot.val();
-    const notifBadge = document.getElementById("notifBadge");
-    if (val) {
-      const count = Object.keys(val).length;
-      if (count > 0) {
-        notifBadge.innerText = count;
-        notifBadge.style.display = 'inline';
-      } else {
-        notifBadge.style.display = 'none';
-      }
-    } else {
-      notifBadge.style.display = 'none';
-    }
-  });
-
-  function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => showApp())
-      .catch(err => alert(err.message));
-  }
-
-  function register() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => showApp())
-      .catch(err => alert(err.message));
-  }
-
-  function resetPassword() {
-    const email = document.getElementById("email").value;
-    if (!email) return alert("Masukkan email terlebih dahulu.");
-    auth.sendPasswordResetEmail(email)
-      .then(() => alert("Email reset password telah dikirim."))
-      .catch(err => alert(err.message));
-  }
-
-  function showApp() {
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+  auth.onAuthStateChanged(user => {
+  if (user) {
     document.getElementById("authSection").style.display = "none";
     document.getElementById("mainApp").style.display = "block";
+    loadFeed();
+  } else {
+    document.getElementById("authSection").style.display = "block";
+    document.getElementById("mainApp").style.display = "none";
   }
+});
 
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      showApp();
-    } else {
-      document.getElementById("authSection").style.display = "block";
-      document.getElementById("mainApp").style.display = "none";
-    }
+function login() {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  auth.signInWithEmailAndPassword(email, password).catch(e => alert(e.message));
+}
+
+function register() {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(cred => {
+      db.ref('users/' + cred.user.uid).set({
+        email: email,
+        username: email.split('@')[0]
+      });
+    })
+    .catch(e => alert(e.message));
+}
+
+function resetPassword() {
+  const email = emailInput.value;
+  auth.sendPasswordResetEmail(email).then(() => alert("Email terkirim!")).catch(e => alert(e.message));
+}
+
+function logout() {
+  auth.signOut();
+}
+
+function uploadPost() {
+  const file = document.getElementById("mediaUpload").files[0];
+  const caption = document.getElementById("caption").value;
+  const userId = auth.currentUser.uid;
+  const storageRef = storage.ref('posts/' + Date.now() + '_' + file.name);
+
+  storageRef.put(file).then(snapshot => {
+    snapshot.ref.getDownloadURL().then(url => {
+      const newPostKey = db.ref().child('posts').push().key;
+      db.ref('posts/' + newPostKey).set({
+        userId,
+        caption,
+        media: url,
+        timestamp: Date.now()
+      });
+    });
   });
+}
+
+function loadFeed() {
+  db.ref("posts").orderByChild("timestamp").once("value", snap => {
+    const feed = document.getElementById("feed");
+    feed.innerHTML = '';
+    snap.forEach(postSnap => {
+      const post = postSnap.val();
+      const mediaTag = post.media.endsWith(".mp4")
+        ? `<video controls src="${post.media}"></video>`
+        : `<img src="${post.media}" />`;
+      feed.innerHTML += `
+        <div class="card">
+          ${mediaTag}
+          <p>${post.caption}</p>
+          <button onclick="likePost('${postSnap.key}')">❤️ Like</button>
+          <input placeholder="Comment..." onkeydown="if(event.key==='Enter'){comment('${postSnap.key}', this.value)}" />
+        </div>`;
+    });
+  });
+}
+
+function likePost(postId) {
+  const userId = auth.currentUser.uid;
+  db.ref('likes/' + postId + '/' + userId).set(true);
+}
+
+function comment(postId, text) {
+  const userId = auth.currentUser.uid;
+  db.ref('comments/' + postId).push({ userId, text });
+}
+
+function viewProfile() {
+  const userId = auth.currentUser.uid;
+  viewPublicProfile(userId);
+}
+
+function showNotifications() {
+  alert("Notifikasi akan ditambahkan di versi selanjutnya.");
+      }
+  // View public profile
+function viewPublicProfile(userId) {
+  db.ref('users/' + userId).once('value').then(snap => {
+    const data = snap.val();
+    const username = data.username || userId;
+    const container = document.getElementById("publicProfile");
+    container.innerHTML = `<h3>@${username}</h3><p>ID: ${userId}</p>`;
+
+    db.ref("posts").orderByChild("userId").equalTo(userId).once("value", postsSnap => {
+      postsSnap.forEach(postSnap => {
+        const post = postSnap.val();
+        const media = post.media.endsWith(".mp4")
+          ? `<video controls src="${post.media}"></video>`
+          : `<img src="${post.media}" />`;
+        container.innerHTML += `
+          <div class='card'>
+            ${media}
+            <p>${post.caption}</p>
+          </div>`;
+      });
+    });
+  });
+}
+
+// Simple chat system
+function sendMessage(toUserId, message) {
+  const fromUserId = auth.currentUser.uid;
+  const chatId = fromUserId < toUserId
+    ? fromUserId + '_' + toUserId
+    : toUserId + '_' + fromUserId;
+
+  db.ref('chats/' + chatId).push({
+    from: fromUserId,
+    message,
+    timestamp: Date.now()
+  });
+}
+
+function loadChat(toUserId) {
+  const fromUserId = auth.currentUser.uid;
+  const chatId = fromUserId < toUserId
+    ? fromUserId + '_' + toUserId
+    : toUserId + '_' + fromUserId;
+
+  const chatBox = document.getElementById("chatBox");
+  db.ref('chats/' + chatId).on('value', snap => {
+    chatBox.innerHTML = "";
+    snap.forEach(msg => {
+      const m = msg.val();
+      chatBox.innerHTML += `<div><b>${m.from === fromUserId ? 'You' : 'Them'}:</b> ${m.message}</div>`;
+    });
+  });
+}
 </script>
+
+<!-- Navigasi Bawah (Mobile Friendly) -->
+<nav>
+  <button onclick="loadFeed()">🏠 Feed</button>
+  <button onclick="viewProfile()">👤 Profil</button>
+  <button onclick="showNotifications()">🔔 Notifikasi</button>
+</nav>
 
 </body>
 </html>
