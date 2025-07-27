@@ -45,6 +45,7 @@
       display: block;
       opacity: 1;
       transform: translateY(0);
+      animation: none;
     }
   </style>
 </head>
@@ -88,7 +89,7 @@
     </section>
     
     <section aria-live="polite" class="space-y-6 hidden" id="mainApp">
-      <article class="tab bg-white rounded-xl shadow-md p-6 active-tab" id="home">
+      <article class="tab bg-white rounded-xl shadow-md p-6 active-tab animate-fadeIn" id="home">
         <h2 class="text-xl font-semibold mb-3 text-gray-900">Selamat datang di Beranda GlooVish!</h2>
         <p class="text-gray-700 leading-relaxed">
           Nikmati konten terbaru dan terpopuler yang kami sajikan untuk Anda. Jelajahi berbagai fitur menarik dan tetap terhubung dengan komunitas kami.
@@ -288,6 +289,11 @@
 
     // Fungsi untuk berpindah tab
     function switchTab(tabId) {
+      // Pastikan mainApp sudah ditampilkan
+      if (document.getElementById('mainApp').style.display === 'none') {
+        return;
+      }
+
       // Sembunyikan semua tab
       const tabs = document.querySelectorAll('.tab');
       tabs.forEach(tab => {
@@ -295,14 +301,15 @@
         tab.classList.remove('active-tab');
       });
 
-      // Tampilkan tab yang dipilih
+      // Tampilkan tab yang dipilih dengan animasi
       const activeTab = document.getElementById(tabId);
       if (activeTab) {
         activeTab.style.display = 'block';
         activeTab.classList.add('active-tab');
+        activeTab.classList.add('animate-fadeIn');
       }
 
-      // Perbarui indikator tab aktif di navigasi
+      // Perbarui indikator navigasi
       updateActiveNavIndicator(tabId);
     }
 
@@ -323,12 +330,27 @@
       });
     }
 
-    // Set default tab saat pertama kali load
-    document.addEventListener('DOMContentLoaded', () => {
-      if (document.getElementById('mainApp').style.display === 'block') {
-        switchTab('home');
-      }
-    });
+    function showApp() {
+      document.getElementById("authSection").style.display = "none";
+      const mainApp = document.getElementById("mainApp");
+      mainApp.style.display = "block";
+      
+      // Reset semua tab
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        tab.style.display = 'none';
+        tab.classList.remove('active-tab');
+      });
+      
+      // Tampilkan tab home sebagai default
+      document.getElementById('home').style.display = 'block';
+      document.getElementById('home').classList.add('active-tab');
+      document.getElementById('home').classList.add('animate-fadeIn');
+      
+      // Update navigasi
+      updateActiveNavIndicator('home');
+      loadUserProfile();
+    }
 
     const notifBadgeMobile = document.getElementById("notifBadge");
     const notifBadgeDesktop = document.getElementById("notifBadgeDesktop");
@@ -396,7 +418,7 @@
       
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        loadUserProfile();
+        showApp();
       } catch (err) {
         let errorMessage = "Terjadi kesalahan saat login.";
         switch (err.code) {
@@ -451,7 +473,7 @@
           email: user.email,
           avatarUrl: "https://placehold.co/150x150?text=Avatar+Profil"
         });
-        loadUserProfile();
+        showApp();
       } catch (err) {
         let errorMessage = "Terjadi kesalahan saat mendaftar.";
         switch (err.code) {
@@ -486,13 +508,6 @@
       } catch (err) {
         showError("Gagal mengirim email reset password: " + err.message);
       }
-    }
-
-    function showApp() {
-      document.getElementById("authSection").style.display = "none";
-      document.getElementById("mainApp").style.display = "block";
-      switchTab('home');
-      loadUserProfile();
     }
 
     onAuthStateChanged(auth, (user) => {
@@ -734,6 +749,14 @@
         spinner.classList.add('hidden');
         uploadText.classList.remove('hidden');
         uploadBtn.disabled = false;
+      }
+    });
+
+    // Inisialisasi awal
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set tab home sebagai default jika sudah login
+      if (document.getElementById('mainApp').style.display === 'block') {
+        switchTab('home');
       }
     });
   </script>
