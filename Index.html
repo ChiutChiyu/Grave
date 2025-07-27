@@ -231,6 +231,86 @@
             opacity: 0.3;
         }
         
+        .post-button.active {
+            opacity: 1;
+        }
+        
+        /* Comments Modal */
+        .comments-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dbdbdb;
+        }
+        
+        .comments-header button {
+            background: none;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .comments-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .comment-item {
+            display: flex;
+            margin-bottom: 16px;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .comment-content {
+            flex-grow: 1;
+        }
+        
+        .comment-username {
+            font-weight: bold;
+            margin-right: 4px;
+        }
+        
+        .comment-text {
+            margin-top: 2px;
+        }
+        
+        .comment-time {
+            font-size: 10px;
+            color: #8e8e8e;
+            margin-top: 4px;
+        }
+        
+        .comments-footer {
+            padding: 16px;
+            border-top: 1px solid #dbdbdb;
+        }
+        
         /* Auth Forms */
         .auth-container {
             display: flex;
@@ -301,13 +381,109 @@
             display: none;
         }
         
-        /* Loading Spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            margin: 100px auto;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0095f6;
+        /* Upload Modal */
+        .upload-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .upload-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dbdbdb;
+        }
+        
+        .upload-header button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .upload-header .back-btn {
+            color: #262626;
+        }
+        
+        .upload-header .share-btn {
+            color: #0095f6;
+        }
+        
+        .upload-preview {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .upload-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .upload-form {
+            padding: 16px;
+            border-top: 1px solid #dbdbdb;
+        }
+        
+        .upload-form textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            outline: none;
+            font-size: 14px;
+            margin-bottom: 16px;
+            min-height: 80px;
+        }
+        
+        .upload-options {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        
+        .upload-btn {
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: bold;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 300;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0095f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -319,7 +495,7 @@
     </style>
 </head>
 <body>
-    <!-- Mobile Header (hidden until logged in) -->
+    <!-- Mobile Header -->
     <header class="mobile-header hidden" id="mobile-header">
         <div class="logo">Glovish</div>
         <div>
@@ -328,10 +504,10 @@
         </div>
     </header>
     
-    <!-- Main Content (hidden until logged in) -->
+    <!-- Main Content -->
     <div id="mobile-content" class="mobile-content hidden">
         <!-- Stories -->
-        <div class="stories">
+        <div class="stories" id="stories-container">
             <!-- Stories will be dynamically added here -->
         </div>
         
@@ -341,7 +517,7 @@
         </div>
     </div>
     
-    <!-- Mobile Navigation (hidden until logged in) -->
+    <!-- Mobile Navigation -->
     <nav class="mobile-navbar hidden" id="mobile-navbar">
         <i class="fas fa-home mobile-nav-icon active" id="home-btn"></i>
         <i class="fas fa-search mobile-nav-icon" id="search-btn"></i>
@@ -349,6 +525,54 @@
         <i class="fas fa-heart mobile-nav-icon" id="activity-btn"></i>
         <i class="fas fa-user mobile-nav-icon" id="profile-btn"></i>
     </nav>
+    
+    <!-- Upload Modal -->
+    <div class="upload-modal" id="upload-modal">
+        <div class="upload-header">
+            <button class="back-btn" id="upload-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h3>New Post</h3>
+            <button class="share-btn" id="share-post-btn">Share</button>
+        </div>
+        
+        <div class="upload-preview" id="upload-preview">
+            <div class="upload-options">
+                <button class="upload-btn" id="select-file-btn">Select from Gallery</button>
+                <input type="file" id="file-input" class="file-input" accept="image/*">
+            </div>
+        </div>
+        
+        <div class="upload-form">
+            <textarea id="post-caption" placeholder="Write a caption..."></textarea>
+            <div class="post-options">
+                <!-- Additional options can be added here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Comments Modal -->
+    <div class="comments-modal" id="comments-modal">
+        <div class="comments-header">
+            <button id="close-comments-btn"><i class="fas fa-arrow-left"></i></button>
+            <h3>Comments</h3>
+            <div></div> <!-- Empty div for spacing -->
+        </div>
+        
+        <div class="comments-list" id="comments-list">
+            <!-- Comments will be added here -->
+        </div>
+        
+        <div class="comments-footer">
+            <div class="add-comment">
+                <input type="text" class="comment-input" id="new-comment-input" placeholder="Add a comment...">
+                <button class="post-button" id="post-comment-btn">Post</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
     
     <!-- Auth Forms -->
     <div id="auth-forms" class="auth-container">
@@ -395,7 +619,7 @@
     </div>
 
     <script>
-        // Firebase configuration remains the same
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
             authDomain: "projectchat01-d16bc.firebaseapp.com",
@@ -424,7 +648,28 @@
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
         const postsContainer = document.getElementById('posts-container');
-        const storiesContainer = document.querySelector('.stories');
+        const storiesContainer = document.getElementById('stories-container');
+        
+        // Upload elements
+        const addPostBtn = document.getElementById('add-post-btn');
+        const uploadModal = document.getElementById('upload-modal');
+        const uploadBackBtn = document.getElementById('upload-back-btn');
+        const sharePostBtn = document.getElementById('share-post-btn');
+        const selectFileBtn = document.getElementById('select-file-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadPreview = document.getElementById('upload-preview');
+        const postCaption = document.getElementById('post-caption');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        
+        // Comments elements
+        const commentsModal = document.getElementById('comments-modal');
+        const closeCommentsBtn = document.getElementById('close-comments-btn');
+        const commentsList = document.getElementById('comments-list');
+        const newCommentInput = document.getElementById('new-comment-input');
+        const postCommentBtn = document.getElementById('post-comment-btn');
+        
+        // Current post for comments
+        let currentPostId = null;
         
         // Sample data for demo
         const sampleStories = [
@@ -435,29 +680,6 @@
             { id: 5, username: "photographer", avatar: "https://randomuser.me/api/portraits/women/5.jpg" },
             { id: 6, username: "explorer", avatar: "https://randomuser.me/api/portraits/men/6.jpg" },
             { id: 7, username: "fitness", avatar: "https://randomuser.me/api/portraits/women/7.jpg" }
-        ];
-        
-        const samplePosts = [
-            { 
-                id: "post1", 
-                username: "traveler", 
-                avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-                imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-                caption: "Beautiful sunset views from my trip! 🌅 #travel #sunset",
-                likes: 124,
-                comments: 23,
-                time: new Date(Date.now() - 3600000 * 2)
-            },
-            { 
-                id: "post2", 
-                username: "foodie", 
-                avatar: "https://randomuser.me/api/portraits/women/3.jpg",
-                imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-                caption: "Delicious homemade pasta for dinner tonight 🍝 #foodie #homecooking",
-                likes: 89,
-                comments: 12,
-                time: new Date(Date.now() - 3600000 * 5)
-            }
         ];
         
         // Auth state listener
@@ -519,6 +741,7 @@
                     return db.collection('users').doc(userCredential.user.uid).set({
                         username: username,
                         email: email,
+                        avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 50)}.jpg`,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 })
@@ -528,6 +751,111 @@
                 .catch(error => {
                     errorElement.textContent = error.message;
                 });
+        });
+        
+        // Upload functionality
+        addPostBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'flex';
+        });
+        
+        uploadBackBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'none';
+            // Reset the upload form
+            uploadPreview.innerHTML = `
+                <div class="upload-options">
+                    <button class="upload-btn" id="select-file-btn">Select from Gallery</button>
+                    <input type="file" id="file-input" class="file-input" accept="image/*">
+                </div>
+            `;
+            postCaption.value = '';
+            fileInput.value = '';
+            // Reattach event listener
+            document.getElementById('select-file-btn').addEventListener('click', triggerFileInput);
+        });
+        
+        function triggerFileInput() {
+            fileInput.click();
+        }
+        
+        selectFileBtn.addEventListener('click', triggerFileInput);
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadPreview.innerHTML = `
+                        <img src="${event.target.result}" alt="Preview">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        sharePostBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            const caption = postCaption.value;
+            const user = auth.currentUser;
+            
+            if (!file) {
+                alert('Please select an image to upload');
+                return;
+            }
+            
+            if (!user) {
+                alert('You need to be logged in to post');
+                return;
+            }
+            
+            loadingOverlay.style.display = 'flex';
+            
+            try {
+                // 1. Upload the image to Firebase Storage
+                const storageRef = storage.ref();
+                const fileRef = storageRef.child(`posts/${user.uid}/${Date.now()}_${file.name}`);
+                await fileRef.put(file);
+                const imageUrl = await fileRef.getDownloadURL();
+                
+                // 2. Get user data
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userData = userDoc.data();
+                
+                // 3. Save post data to Firestore
+                const newPost = {
+                    userId: user.uid,
+                    username: userData.username,
+                    userAvatar: userData.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg',
+                    imageUrl: imageUrl,
+                    caption: caption,
+                    likes: 0,
+                    likedBy: [],
+                    comments: [],
+                    commentCount: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('posts').add(newPost);
+                
+                // 4. Close modal and reset
+                uploadModal.style.display = 'none';
+                uploadPreview.innerHTML = `
+                    <div class="upload-options">
+                        <button class="upload-btn" id="select-file-btn">Select from Gallery</button>
+                        <input type="file" id="file-input" class="file-input" accept="image/*">
+                    </div>
+                `;
+                postCaption.value = '';
+                fileInput.value = '';
+                
+                // 5. Reload posts
+                loadPosts();
+                
+            } catch (error) {
+                console.error("Error uploading post: ", error);
+                alert('Error uploading post. Please try again.');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
         });
         
         // Functions to load data
@@ -559,21 +887,31 @@
         }
         
         function loadPosts() {
-            // For demo, we're using sample data
             postsContainer.innerHTML = '';
-            samplePosts.forEach(post => {
-                createPostElement(post);
-            });
+            db.collection('posts').orderBy('createdAt', 'desc').get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        const post = doc.data();
+                        post.id = doc.id;
+                        createPostElement(post);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading posts: ", error);
+                });
         }
         
         function createPostElement(post) {
+            const user = auth.currentUser;
+            const isLiked = user && post.likedBy && post.likedBy.includes(user.uid);
+            
             const postElement = document.createElement('div');
             postElement.className = 'post';
             postElement.innerHTML = `
                 <div class="post-header">
                     <div class="post-user">
                         <div class="post-user-avatar">
-                            <img src="${post.avatar}" alt="${post.username}">
+                            <img src="${post.userAvatar}" alt="${post.username}">
                         </div>
                         <span>${post.username}</span>
                     </div>
@@ -584,21 +922,21 @@
                 </div>
                 <div class="post-actions">
                     <div class="post-actions-left">
-                        <i class="far fa-heart like-btn" data-postid="${post.id}"></i>
-                        <i class="far fa-comment"></i>
+                        <i class="${isLiked ? 'fas' : 'far'} fa-heart like-btn" data-postid="${post.id}" style="${isLiked ? 'color: #ed4956;' : ''}"></i>
+                        <i class="far fa-comment comment-btn" data-postid="${post.id}"></i>
                         <i class="far fa-paper-plane"></i>
                     </div>
                     <i class="far fa-bookmark"></i>
                 </div>
-                <div class="post-likes">${post.likes} likes</div>
+                <div class="post-likes">${post.likes || 0} likes</div>
                 <div class="post-caption">
-                    <strong>${post.username}</strong> ${post.caption}
+                    <strong>${post.username}</strong> ${post.caption || ''}
                 </div>
-                <div class="post-comments">View all ${post.comments} comments</div>
-                <div class="post-time">${formatDate(post.time)}</div>
+                <div class="post-comments view-comments-btn" data-postid="${post.id}">View all ${post.commentCount || 0} comments</div>
+                <div class="post-time">${formatDate(post.createdAt?.toDate())}</div>
                 <div class="add-comment">
-                    <input type="text" class="comment-input" placeholder="Add a comment...">
-                    <button class="post-button">Post</button>
+                    <input type="text" class="comment-input" placeholder="Add a comment..." data-postid="${post.id}">
+                    <button class="post-button ${post.caption ? '' : 'active'}" data-postid="${post.id}">Post</button>
                 </div>
             `;
             
@@ -607,21 +945,199 @@
             // Add like button functionality
             postElement.querySelector('.like-btn').addEventListener('click', (e) => {
                 const postId = e.target.getAttribute('data-postid');
-                likePost(postId, e.target);
+                toggleLike(postId, e.target);
+            });
+            
+            // Add comment button functionality
+            postElement.querySelector('.comment-btn').addEventListener('click', (e) => {
+                const postId = e.target.getAttribute('data-postid');
+                showComments(postId);
+            });
+            
+            // Add view comments functionality
+            postElement.querySelector('.view-comments-btn').addEventListener('click', (e) => {
+                const postId = e.target.getAttribute('data-postid');
+                showComments(postId);
+            });
+            
+            // Add comment input functionality
+            const commentInput = postElement.querySelector('.comment-input');
+            const postButton = postElement.querySelector('.post-button');
+            
+            commentInput.addEventListener('input', (e) => {
+                if (e.target.value.trim() !== '') {
+                    postButton.classList.add('active');
+                } else {
+                    postButton.classList.remove('active');
+                }
+            });
+            
+            postButton.addEventListener('click', (e) => {
+                const postId = e.target.getAttribute('data-postid');
+                const commentText = commentInput.value.trim();
+                
+                if (commentText !== '') {
+                    addComment(postId, commentText);
+                    commentInput.value = '';
+                    postButton.classList.remove('active');
+                }
             });
         }
         
-        function likePost(postId, likeBtn) {
-            likeBtn.classList.toggle('far');
-            likeBtn.classList.toggle('fas');
-            likeBtn.style.color = likeBtn.classList.contains('fas') ? '#ed4956' : '';
+        async function toggleLike(postId, likeBtn) {
+            const user = auth.currentUser;
+            if (!user) return;
             
-            // In a real app, you would update Firebase here
-            const likesElement = likeBtn.closest('.post').querySelector('.post-likes');
-            const currentLikes = parseInt(likesElement.textContent.split(' ')[0]);
-            const newLikes = likeBtn.classList.contains('fas') ? currentLikes + 1 : currentLikes - 1;
-            likesElement.textContent = `${newLikes} likes`;
+            const postRef = db.collection('posts').doc(postId);
+            
+            try {
+                const postDoc = await postRef.get();
+                if (!postDoc.exists) return;
+                
+                const postData = postDoc.data();
+                const isLiked = postData.likedBy && postData.likedBy.includes(user.uid);
+                
+                if (isLiked) {
+                    // Unlike the post
+                    await postRef.update({
+                        likes: firebase.firestore.FieldValue.increment(-1),
+                        likedBy: firebase.firestore.FieldValue.arrayRemove(user.uid)
+                    });
+                    
+                    likeBtn.classList.remove('fas');
+                    likeBtn.classList.add('far');
+                    likeBtn.style.color = '';
+                } else {
+                    // Like the post
+                    await postRef.update({
+                        likes: firebase.firestore.FieldValue.increment(1),
+                        likedBy: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                    });
+                    
+                    likeBtn.classList.remove('far');
+                    likeBtn.classList.add('fas');
+                    likeBtn.style.color = '#ed4956';
+                }
+                
+                // Update likes count
+                const likesElement = likeBtn.closest('.post').querySelector('.post-likes');
+                const currentLikes = parseInt(likesElement.textContent.split(' ')[0]);
+                const newLikes = isLiked ? currentLikes - 1 : currentLikes + 1;
+                likesElement.textContent = `${newLikes} likes`;
+                
+            } catch (error) {
+                console.error("Error toggling like: ", error);
+            }
         }
+        
+        function showComments(postId) {
+            currentPostId = postId;
+            commentsModal.style.display = 'flex';
+            loadComments(postId);
+        }
+        
+        closeCommentsBtn.addEventListener('click', () => {
+            commentsModal.style.display = 'none';
+            commentsList.innerHTML = '';
+            currentPostId = null;
+        });
+        
+        function loadComments(postId) {
+            commentsList.innerHTML = '';
+            
+            db.collection('posts').doc(postId).collection('comments')
+                .orderBy('createdAt', 'asc')
+                .get()
+                .then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        commentsList.innerHTML = '<p style="text-align: center; color: #8e8e8e;">No comments yet</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach(doc => {
+                        const comment = doc.data();
+                        addCommentToUI(comment);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading comments: ", error);
+                });
+        }
+        
+        function addComment(postId, commentText) {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            db.collection('users').doc(user.uid).get()
+                .then(userDoc => {
+                    const userData = userDoc.data();
+                    const newComment = {
+                        userId: user.uid,
+                        username: userData.username,
+                        userAvatar: userData.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg',
+                        text: commentText,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    // Add comment to subcollection
+                    return db.collection('posts').doc(postId).collection('comments').add(newComment);
+                })
+                .then(() => {
+                    // Update comment count
+                    return db.collection('posts').doc(postId).update({
+                        commentCount: firebase.firestore.FieldValue.increment(1)
+                    });
+                })
+                .then(() => {
+                    if (currentPostId === postId) {
+                        // If comments modal is open for this post, reload comments
+                        loadComments(postId);
+                    }
+                    
+                    // Update comment count in post
+                    const commentCountElements = document.querySelectorAll(`.view-comments-btn[data-postid="${postId}"]`);
+                    commentCountElements.forEach(el => {
+                        const currentCount = parseInt(el.textContent.split(' ')[2]) || 0;
+                        el.textContent = `View all ${currentCount + 1} comments`;
+                    });
+                })
+                .catch(error => {
+                    console.error("Error adding comment: ", error);
+                });
+        }
+        
+        function addCommentToUI(comment) {
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment-item';
+            commentElement.innerHTML = `
+                <div class="comment-avatar">
+                    <img src="${comment.userAvatar}" alt="${comment.username}">
+                </div>
+                <div class="comment-content">
+                    <div>
+                        <span class="comment-username">${comment.username}</span>
+                        <span class="comment-text">${comment.text}</span>
+                    </div>
+                    <div class="comment-time">${formatDate(comment.createdAt?.toDate())}</div>
+                </div>
+            `;
+            commentsList.appendChild(commentElement);
+        }
+        
+        postCommentBtn.addEventListener('click', () => {
+            const commentText = newCommentInput.value.trim();
+            if (commentText !== '' && currentPostId) {
+                addComment(currentPostId, commentText);
+                newCommentInput.value = '';
+            }
+        });
+        
+        newCommentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && newCommentInput.value.trim() !== '' && currentPostId) {
+                addComment(currentPostId, newCommentInput.value.trim());
+                newCommentInput.value = '';
+            }
+        });
         
         function formatDate(date) {
             if (!date) return '';
