@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Profil GloVish</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+      authDomain: "projectchat01-d16bc.firebaseapp.com",
+      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+      projectId: "projectchat01-d16bc",
+      storageBucket: "projectchat01-d16bc.appspot.com",
+      messagingSenderId: "163313653543",
+      appId: "1:163313653543:web:cd1c193158d8a76811bb02"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const username = "anon"; // Ganti dengan ID login user sesungguhnya
+
+    const nameInput = document.getElementById("name");
+    const bioInput = document.getElementById("bio");
+
+    async function loadProfile() {
+      const snapshot = await get(child(ref(db), `users/${username}`));
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        nameInput.value = data.name || "";
+        bioInput.value = data.bio || "";
+        document.getElementById("nameDisplay").textContent = data.name || "Belum diatur";
+        document.getElementById("bioDisplay").textContent = data.bio || "Bio kosong";
+      }
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await set(ref(db, `users/${username}`), {
+        name: nameInput.value,
+        bio: bioInput.value
+      });
+      alert("Profil diperbarui!");
+      loadProfile();
+    });
+
+    loadProfile();
+  </script>
+</head>
+<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen p-6">
+  <div class="max-w-xl mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Profil Saya</h1>
+    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded shadow mb-6">
+      <p><strong>Nama:</strong> <span id="nameDisplay">Loading...</span></p>
+      <p><strong>Bio:</strong> <span id="bioDisplay">Loading...</span></p>
+    </div>
+
+    <form id="editForm" class="bg-white dark:bg-gray-900 p-4 rounded shadow">
+      <h2 class="text-xl font-semibold mb-2">Edit Profil</h2>
+      <input id="name" type="text" placeholder="Nama" class="w-full mb-3 p-2 border rounded bg-gray-100 dark:bg-gray-700" />
+      <textarea id="bio" placeholder="Bio singkat" class="w-full mb-3 p-2 border rounded bg-gray-100 dark:bg-gray-700"></textarea>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Simpan</button>
+    </form>
+  </div>
+</body>
+</html>
