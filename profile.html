@@ -2,12 +2,13 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Profil GloVish</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil | GloVish</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
@@ -16,54 +17,66 @@
       projectId: "projectchat01-d16bc",
       storageBucket: "projectchat01-d16bc.appspot.com",
       messagingSenderId: "163313653543",
-      appId: "1:163313653543:web:cd1c193158d8a76811bb02"
+      appId: "1:163313653543:web:cd1c193158d8a76811bb02",
+      measurementId: "G-VG80CY31FG"
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getDatabase(app);
-    const username = "anon"; // Ganti dengan ID login user sesungguhnya
 
     const nameInput = document.getElementById("name");
     const bioInput = document.getElementById("bio");
+    const emailDisplay = document.getElementById("email");
 
-    async function loadProfile() {
-      const snapshot = await get(child(ref(db), `users/${username}`));
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        nameInput.value = data.name || "";
-        bioInput.value = data.bio || "";
-        document.getElementById("nameDisplay").textContent = data.name || "Belum diatur";
-        document.getElementById("bioDisplay").textContent = data.bio || "Bio kosong";
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        emailDisplay.textContent = user.email;
+        const profileRef = ref(db, "users/" + user.uid);
+        get(profileRef).then(snapshot => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            nameInput.value = data.name || "";
+            bioInput.value = data.bio || "";
+          }
+        });
+      } else {
+        alert("Silakan login dulu.");
+        window.location.href = "login.html";
       }
-    }
-
-    document.getElementById("editForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await set(ref(db, `users/${username}`), {
-        name: nameInput.value,
-        bio: bioInput.value
-      });
-      alert("Profil diperbarui!");
-      loadProfile();
     });
 
-    loadProfile();
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (user) {
+        const name = nameInput.value;
+        const bio = bioInput.value;
+        const userRef = ref(db, "users/" + user.uid);
+        set(userRef, { name, bio, email: user.email });
+        alert("Profil berhasil diperbarui.");
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    });
   </script>
 </head>
-<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen p-6">
+<body class="bg-gray-100 dark:bg-black text-black dark:text-white min-h-screen px-4 py-6">
   <div class="max-w-xl mx-auto">
     <h1 class="text-3xl font-bold mb-4">Profil Saya</h1>
-    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded shadow mb-6">
-      <p><strong>Nama:</strong> <span id="nameDisplay">Loading...</span></p>
-      <p><strong>Bio:</strong> <span id="bioDisplay">Loading...</span></p>
-    </div>
+    <p class="mb-4">Email: <span id="email" class="font-semibold text-blue-600">Loading...</span></p>
 
-    <form id="editForm" class="bg-white dark:bg-gray-900 p-4 rounded shadow">
-      <h2 class="text-xl font-semibold mb-2">Edit Profil</h2>
-      <input id="name" type="text" placeholder="Nama" class="w-full mb-3 p-2 border rounded bg-gray-100 dark:bg-gray-700" />
-      <textarea id="bio" placeholder="Bio singkat" class="w-full mb-3 p-2 border rounded bg-gray-100 dark:bg-gray-700"></textarea>
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Simpan</button>
-    </form>
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+      <input type="text" id="name" placeholder="Nama pengguna" class="w-full p-2 bg-gray-100 dark:bg-gray-700 rounded" />
+      <textarea id="bio" placeholder="Bio / Tentang saya..." class="w-full p-2 bg-gray-100 dark:bg-gray-700 rounded"></textarea>
+      <div class="flex justify-between">
+        <button id="saveBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Simpan</button>
+        <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Keluar</button>
+      </div>
+    </div>
   </div>
 </body>
 </html>
