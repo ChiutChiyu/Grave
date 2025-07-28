@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Postingan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getDatabase, ref, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+      authDomain: "projectchat01-d16bc.firebaseapp.com",
+      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+      projectId: "projectchat01-d16bc",
+      storageBucket: "projectchat01-d16bc.appspot.com",
+      messagingSenderId: "163313653543",
+      appId: "1:163313653543:web:cd1c193158d8a76811bb02"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    const postId = new URLSearchParams(window.location.search).get("id"); // ?id=POST_ID
+
+    const form = document.getElementById("editForm");
+
+    const postRef = ref(db, `posts/${postId}`);
+    get(postRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        form.title.value = data.title;
+        form.description.value = data.description;
+      } else {
+        alert("Postingan tidak ditemukan.");
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = form.title.value;
+      const description = form.description.value;
+      const file = form.media.files[0];
+
+      let updates = { title, description };
+
+      if (file) {
+        const type = file.type.startsWith("video") ? "video" : "image";
+        const storageRef = sRef(storage, "posts/" + Date.now() + "-" + file.name);
+        await uploadBytes(storageRef, file);
+        const mediaUrl = await getDownloadURL(storageRef);
+        updates.mediaUrl = mediaUrl;
+        updates.type = type;
+      }
+
+      await update(postRef, updates);
+      alert("Postingan berhasil diperbarui!");
+    });
+  </script>
+</head>
+<body class="bg-white min-h-screen p-6 text-black">
+  <h1 class="text-2xl font-bold mb-4">Edit Postingan</h1>
+  <form id="editForm" class="max-w-md space-y-4">
+    <input name="title" type="text" placeholder="Judul" required class="w-full p-2 border rounded"/>
+    <textarea name="description" placeholder="Deskripsi" required class="w-full p-2 border rounded"></textarea>
+    <input name="media" type="file" accept="image/*,video/*" class="w-full"/>
+    <button type="submit" class="w-full bg-green-500 text-white py-2 rounded">Simpan Perubahan</button>
+  </form>
+</body>
+</html>
