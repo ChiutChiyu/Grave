@@ -4,18 +4,292 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Glovish - Bagikan Momenmu</title>
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* [Gaya CSS sebelumnya tetap sama] */
+        body {
+            font-family: -apple-system, BlinkMacMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+            color: #262626;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background-color: white;
+            border-bottom: 1px solid #dbdbdb;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .top-bar h1 {
+            font-size: 24px;
+            margin: 0;
+            /* font-family: 'Billabong', cursive; */ /* Contoh font bergaya Instagram, perlu import font */
+        }
+
+        .top-bar .icon-button {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #262626;
+        }
+
+        .content {
+            padding-top: 50px; /* Sesuaikan dengan tinggi top-bar */
+            padding-bottom: 60px; /* Sesuaikan dengan tinggi bottom-nav */
+        }
+
+        .post {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            margin-bottom: 10px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+        }
+
+        .post-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .post-username {
+            font-weight: bold;
+        }
+
+        .post-media {
+            width: 100%;
+            display: block;
+        }
+
+        .post-actions {
+            padding: 8px 16px;
+        }
+
+        .post-actions .icon-button {
+            margin-right: 10px;
+        }
+
+        .post-likes {
+            font-weight: bold;
+            padding: 0 16px 8px;
+            font-size: 14px;
+        }
+
+        .post-caption {
+            padding: 0 16px 10px;
+            font-size: 14px;
+        }
+
+        .post-comments {
+            padding: 0 16px 10px;
+            font-size: 13px;
+            color: #8e8e8e;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            background-color: white;
+            border-top: 1px solid #dbdbdb;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .bottom-nav .icon-button {
+            font-size: 24px;
+            color: #262626;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Modal gaya umum */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 150;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        /* Gaya untuk modal upload */
+        .upload-modal-content {
+            text-align: center;
+        }
+
+        .upload-modal-content input[type="file"] {
+            margin-bottom: 15px;
+        }
+
+        .upload-modal-content textarea {
+            width: calc(100% - 20px);
+            height: 80px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .upload-modal-content button {
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .upload-modal-content button:hover {
+            opacity: 0.9;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Gaya untuk login/register */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #fafafa;
+        }
+
+        .auth-box {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .auth-box h2 {
+            margin-bottom: 20px;
+            color: #262626;
+        }
+
+        .auth-box input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+
+        .auth-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .auth-box button:hover {
+            opacity: 0.9;
+        }
+
+        .auth-box p {
+            font-size: 14px;
+        }
+
+        .auth-box a {
+            color: #0095f6;
+            text-decoration: none;
+            font-weight: bold;
+        }
         
         /* Tambahan gaya untuk halaman profil */
         .profile-container {
-            display: none;
+            display: none; /* Defaultnya tersembunyi */
             padding: 16px;
         }
         
@@ -53,6 +327,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            cursor: pointer; /* Menambahkan kursor pointer */
         }
         
         .profile-stats {
@@ -77,7 +352,7 @@
             color: #8e8e8e;
         }
         
-        .profile-edit-btn {
+        .profile-edit-btn, .logout-btn { /* Menambahkan gaya untuk tombol logout */
             background-color: #f0f0f0;
             border: 1px solid #dbdbdb;
             border-radius: 4px;
@@ -85,6 +360,14 @@
             font-weight: bold;
             margin-top: 10px;
             width: 100%;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background-color: #dc3545; /* Warna merah untuk logout */
+            color: white;
+            border: none;
+            margin-top: 15px; /* Sedikit spasi di bawah edit profil */
         }
         
         .profile-bio {
@@ -101,6 +384,7 @@
             aspect-ratio: 1;
             background-color: #fafafa;
             position: relative;
+            overflow: hidden; /* Pastikan gambar tidak melebihi batas */
         }
         
         .profile-post img, .profile-post video {
@@ -118,7 +402,7 @@
             bottom: 0;
             background-color: white;
             z-index: 200;
-            display: none;
+            display: none; /* Defaultnya tersembunyi */
             flex-direction: column;
         }
         
@@ -135,6 +419,15 @@
             border: none;
             font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .edit-profile-header #save-profile-btn {
+            color: #0095f6;
+        }
+
+        .edit-profile-header #cancel-edit-profile-btn {
+            color: #262626;
         }
         
         .edit-profile-content {
@@ -177,13 +470,63 @@
             display: block;
             margin-bottom: 6px;
             font-weight: bold;
+            font-size: 14px;
+        }
+
+        #change-avatar-btn {
+            background: none;
+            border: none;
+            color: #0095f6;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
         }
     </style>
 </head>
 <body>
-    <!-- [Struktur HTML sebelumnya tetap sama] -->
+    <div class="loading-overlay hidden" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Memuat...</p>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <div class="top-bar">
+            <h1>Glovish</h1>
+            <button class="icon-button"><i class="far fa-paper-plane"></i></button>
+        </div>
+
+        <div class="content" id="mobile-content">
+            </div>
+
+        <div class="bottom-nav">
+            <button class="icon-button" id="home-btn"><i class="fas fa-home"></i></button>
+            <button class="icon-button"><i class="fas fa-search"></i></button>
+            <button class="icon-button" id="upload-btn"><i class="fas fa-plus-square"></i></button>
+            <button class="icon-button"><i class="fas fa-heart"></i></button>
+            <button class="icon-button" id="profile-btn"><i class="fas fa-user-circle"></i></button>
+        </div>
+
+        <div class="modal hidden" id="upload-modal">
+            <div class="modal-content upload-modal-content">
+                <button class="modal-close-button" id="close-upload-modal">&times;</button>
+                <h2>Buat Postingan Baru</h2>
+                <input type="file" id="upload-file-input" accept="image/*,video/*">
+                <textarea id="upload-caption-input" placeholder="Tulis keterangan..."></textarea>
+                <button id="submit-post-btn">Bagikan</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-container" id="auth-container">
+        <div class="auth-box">
+            <h2 id="auth-title">Login</h2>
+            <input type="email" id="auth-email" placeholder="Email">
+            <input type="password" id="auth-password" placeholder="Password">
+            <button id="auth-submit-btn">Login</button>
+            <p id="auth-toggle-text">Belum punya akun? <a href="#" id="auth-toggle-link">Daftar</a></p>
+        </div>
+    </div>
     
-    <!-- Halaman Profil -->
     <div class="profile-container" id="profile-container">
         <div class="profile-header">
             <div class="profile-avatar">
@@ -215,18 +558,17 @@
         </div>
         
         <button class="profile-edit-btn" id="edit-profile-btn">Edit Profil</button>
+        <button class="logout-btn" id="logout-btn">Log Out</button> 
         
         <div class="profile-posts" id="profile-posts">
-            <!-- Postingan pengguna akan muncul di sini -->
-        </div>
+            </div>
     </div>
     
-    <!-- Modal Edit Profil -->
     <div class="edit-profile-modal" id="edit-profile-modal">
         <div class="edit-profile-header">
             <button id="cancel-edit-profile-btn">Batal</button>
             <h3>Edit Profil</h3>
-            <button id="save-profile-btn" style="color: #0095f6;">Simpan</button>
+            <button id="save-profile-btn">Simpan</button>
         </div>
         
         <div class="edit-profile-content">
@@ -248,15 +590,50 @@
         </div>
     </div>
     
-    <!-- [Modal lainnya tetap sama] -->
-
     <script>
-        // [Kode Firebase dan inisialisasi sebelumnya tetap sama]
-        
+        // Inisialisasi Firebase (Ganti dengan konfigurasi proyek Anda)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", // Ganti dengan API Key Anda
+            authDomain: "YOUR_AUTH_DOMAIN", // Ganti dengan Auth Domain Anda
+            projectId: "YOUR_PROJECT_ID", // Ganti dengan Project ID Anda
+            storageBucket: "YOUR_STORAGE_BUCKET", // Ganti dengan Storage Bucket Anda
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Ganti dengan Messaging Sender ID Anda
+            appId: "YOUR_APP_ID" // Ganti dengan App ID Anda
+        };
+
+        // Pastikan untuk menginisialisasi Firebase hanya sekali
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Elemen HTML utama
+        const mainApp = document.getElementById('main-app');
+        const authContainer = document.getElementById('auth-container');
+        const authTitle = document.getElementById('auth-title');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const authToggleLink = document.getElementById('auth-toggle-link');
+        const authToggleText = document.getElementById('auth-toggle-text');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const mobileContent = document.getElementById('mobile-content');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadModal = document.getElementById('upload-modal');
+        const closeUploadModalBtn = document.getElementById('close-upload-modal');
+        const uploadFileInput = document.getElementById('upload-file-input');
+        const uploadCaptionInput = document.getElementById('upload-caption-input');
+        const submitPostBtn = document.getElementById('submit-post-btn');
+        const homeBtn = document.getElementById('home-btn');
+
         // Elemen baru untuk fitur profil
         const profileContainer = document.getElementById('profile-container');
         const profileBtn = document.getElementById('profile-btn');
         const editProfileBtn = document.getElementById('edit-profile-btn');
+        const logoutBtn = document.getElementById('logout-btn'); 
         const editProfileModal = document.getElementById('edit-profile-modal');
         const cancelEditProfileBtn = document.getElementById('cancel-edit-profile-btn');
         const saveProfileBtn = document.getElementById('save-profile-btn');
@@ -276,16 +653,202 @@
         const profilePosts = document.getElementById('profile-posts');
         
         // Variabel untuk data profil
-        let currentUserData = null;
-        
-        // Event listener untuk navigasi
+        let isLoginMode = true;
+        let currentUserData = null; 
+
+        // --- Fungsi Autentikasi ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Pengguna login
+                mainApp.classList.remove('hidden');
+                authContainer.classList.add('hidden');
+                profileContainer.classList.add('hidden'); // Pastikan profil tersembunyi saat awal load (tampilkan home)
+                loadFeed(); // Muat feed postingan
+                loadProfileData(); // Muat data profil saat login
+            } else {
+                // Pengguna belum login atau logout
+                mainApp.classList.add('hidden');
+                profileContainer.classList.add('hidden'); 
+                authContainer.classList.remove('hidden');
+            }
+        });
+
+        // Simpan referensi ke event listener untuk authToggleLink
+        const authToggleLinkHandler = (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            if (isLoginMode) {
+                authTitle.textContent = 'Login';
+                authSubmitBtn.textContent = 'Login';
+                authToggleText.innerHTML = 'Belum punya akun? <a href="#" id="auth-toggle-link">Daftar</a>';
+            } else {
+                authTitle.textContent = 'Daftar';
+                authSubmitBtn.textContent = 'Daftar';
+                authToggleText.innerHTML = 'Sudah punya akun? <a href="#" id="auth-toggle-link">Login</a>';
+            }
+            // Re-attach event listener to the new link element
+            document.getElementById('auth-toggle-link').addEventListener('click', authToggleLinkHandler);
+        };
+        authToggleLink.addEventListener('click', authToggleLinkHandler);
+
+
+        authSubmitBtn.addEventListener('click', async () => {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                if (isLoginMode) {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    alert('Login berhasil!');
+                } else {
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    // Simpan data pengguna awal ke Firestore
+                    await db.collection('users').doc(user.uid).set({
+                        username: email.split('@')[0], 
+                        bio: '',
+                        avatar: 'https://randomuser.me/api/portraits/lego/1.jpg' 
+                    });
+                    alert('Pendaftaran berhasil!');
+                }
+            } catch (error) {
+                console.error("Autentikasi gagal:", error.message);
+                alert('Autentikasi gagal: ' + error.message);
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        });
+
+        // --- Fungsi Postingan ---
+        uploadBtn.addEventListener('click', () => {
+            uploadModal.classList.remove('hidden');
+        });
+
+        closeUploadModalBtn.addEventListener('click', () => {
+            uploadModal.classList.add('hidden');
+            uploadFileInput.value = ''; 
+            uploadCaptionInput.value = ''; 
+        });
+
+        submitPostBtn.addEventListener('click', async () => {
+            const file = uploadFileInput.files[0];
+            const caption = uploadCaptionInput.value;
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert('Anda harus login untuk membuat postingan.');
+                return;
+            }
+
+            if (!file) {
+                alert('Pilih gambar atau video untuk diunggah.');
+                return;
+            }
+
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                const storageRef = storage.ref();
+                const fileType = file.type.startsWith('image') ? 'images' : 'videos';
+                const fileName = `${user.uid}_${Date.now()}_${file.name}`;
+                const fileRef = storageRef.child(`posts/${fileType}/${fileName}`);
+
+                await fileRef.put(file);
+                const mediaUrl = await fileRef.getDownloadURL();
+
+                await db.collection('posts').add({
+                    userId: user.uid,
+                    username: currentUserData ? currentUserData.username : user.email.split('@')[0], 
+                    avatar: currentUserData ? currentUserData.avatar : 'https://randomuser.me/api/portraits/lego/1.jpg', 
+                    mediaUrl: mediaUrl,
+                    mediaType: fileType === 'images' ? 'image' : 'video',
+                    caption: caption,
+                    likes: 0,
+                    comments: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('Postingan berhasil diunggah!');
+                uploadModal.classList.add('hidden');
+                uploadFileInput.value = '';
+                uploadCaptionInput.value = '';
+                loadFeed(); 
+                loadProfileData(); 
+            } catch (error) {
+                console.error("Gagal mengunggah postingan:", error);
+                alert('Gagal mengunggah postingan. Silakan coba lagi.');
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        });
+
+        function loadFeed() {
+            mobileContent.innerHTML = '';
+            db.collection('posts')
+                .orderBy('createdAt', 'desc')
+                .limit(10) 
+                .get()
+                .then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        mobileContent.innerHTML = '<p style="text-align: center; margin-top: 20px; color: #8e8e8e;">Belum ada postingan di feed.</p>';
+                        return;
+                    }
+                    querySnapshot.forEach(doc => {
+                        const post = doc.data();
+                        const postId = doc.id;
+                        const postElement = document.createElement('div');
+                        postElement.className = 'post';
+
+                        const avatarSrc = post.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
+                        const usernameDisplay = post.username || 'Pengguna';
+
+                        postElement.innerHTML = `
+                            <div class="post-header">
+                                <img src="${avatarSrc}" alt="Avatar" class="post-avatar">
+                                <span class="post-username">${usernameDisplay}</span>
+                            </div>
+                            ${post.mediaType === 'video' ? 
+                                `<video class="post-media" controls preload="metadata"><source src="${post.mediaUrl}" type="video/mp4"></video>` :
+                                `<img src="${post.mediaUrl}" alt="Postingan" class="post-media">`
+                            }
+                            <div class="post-actions">
+                                <button class="icon-button"><i class="far fa-heart"></i></button>
+                                <button class="icon-button"><i class="far fa-comment"></i></button>
+                                <button class="icon-button"><i class="far fa-paper-plane"></i></button>
+                            </div>
+                            <div class="post-likes">
+                                <span>${post.likes || 0} suka</span>
+                            </div>
+                            <div class="post-caption">
+                                <span class="post-username">${usernameDisplay}</span> ${post.caption}
+                            </div>
+                            <div class="post-comments">
+                                Lihat semua ${post.comments || 0} komentar
+                            </div>
+                        `;
+                        mobileContent.appendChild(postElement);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading feed: ", error);
+                    mobileContent.innerHTML = '<p style="text-align: center; margin-top: 20px; color: #dc3545;">Gagal memuat feed.</p>';
+                });
+        }
+
+        homeBtn.addEventListener('click', () => {
+            profileContainer.classList.add('hidden');
+            mobileContent.classList.remove('hidden');
+            loadFeed();
+        });
+
+        // --- Fungsi Profil ---
         profileBtn.addEventListener('click', () => {
             mobileContent.classList.add('hidden');
             profileContainer.classList.remove('hidden');
             loadProfileData();
         });
         
-        // Event listener untuk edit profil
         editProfileBtn.addEventListener('click', () => {
             showEditProfileModal();
         });
@@ -298,13 +861,8 @@
             saveProfileChanges();
         });
         
-        // Event listener untuk mengganti foto profil
         editAvatarBtn.addEventListener('click', () => {
             avatarInput.click();
-        });
-        
-        changeAvatarBtn.addEventListener('click', () => {
-            editAvatarInput.click();
         });
         
         avatarInput.addEventListener('change', (e) => {
@@ -312,6 +870,10 @@
             if (file) {
                 uploadProfilePicture(file);
             }
+        });
+
+        changeAvatarBtn.addEventListener('click', () => {
+            editAvatarInput.click();
         });
         
         editAvatarInput.addEventListener('change', (e) => {
@@ -322,22 +884,25 @@
                     editAvatarPreview.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
+                // Langsung upload jika dipilih dari modal edit
+                uploadProfilePicture(file); 
             }
         });
         
-        // Fungsi untuk memuat data profil
         function loadProfileData() {
             const user = auth.currentUser;
-            if (!user) return;
+            if (!user) {
+                profileContainer.classList.add('hidden');
+                authContainer.classList.remove('hidden');
+                return;
+            }
             
-            // Ambil data pengguna dari Firestore
             db.collection('users').doc(user.uid).get()
                 .then(doc => {
                     if (doc.exists) {
                         currentUserData = doc.data();
                         updateProfileUI();
                         
-                        // Hitung jumlah postingan
                         db.collection('posts')
                             .where('userId', '==', user.uid)
                             .get()
@@ -345,7 +910,6 @@
                                 postCount.textContent = querySnapshot.size;
                             });
                         
-                        // Hitung jumlah pengikut
                         db.collection('followers')
                             .doc(user.uid)
                             .collection('userFollowers')
@@ -354,7 +918,6 @@
                                 followerCount.textContent = querySnapshot.size;
                             });
                         
-                        // Hitung jumlah yang diikuti
                         db.collection('following')
                             .doc(user.uid)
                             .collection('userFollowing')
@@ -363,9 +926,25 @@
                                 followingCount.textContent = querySnapshot.size;
                             });
                         
-                        // Muat postingan profil
                         loadProfilePosts(user.uid);
+                    } else {
+                        console.warn("Dokumen user tidak ditemukan. Membuat entri user default.");
+                        const defaultUsername = user.email ? user.email.split('@')[0] : 'PenggunaBaru';
+                        const defaultAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
+                        db.collection('users').doc(user.uid).set({
+                            username: defaultUsername,
+                            bio: '',
+                            avatar: defaultAvatar
+                        }).then(() => {
+                            currentUserData = { username: defaultUsername, bio: '', avatar: defaultAvatar };
+                            updateProfileUI();
+                        }).catch(err => {
+                            console.error("Gagal membuat dokumen user default:", err);
+                        });
                     }
+                })
+                .catch(error => {
+                    console.error("Error loading profile data: ", error);
                 });
         }
         
@@ -376,7 +955,6 @@
             profileBioText.textContent = currentUserData.bio || '';
             profileAvatarImg.src = currentUserData.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
             
-            // Update data di modal edit
             editUsernameInput.value = currentUserData.username || '';
             editBioInput.value = currentUserData.bio || '';
             editAvatarPreview.src = currentUserData.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
@@ -392,26 +970,32 @@
             
             const newUsername = editUsernameInput.value.trim();
             const newBio = editBioInput.value.trim();
+
+            if (newUsername === "") {
+                alert("Username tidak boleh kosong.");
+                return;
+            }
             
+            loadingOverlay.classList.remove('hidden');
+
             try {
-                // Update data di Firestore
                 await db.collection('users').doc(user.uid).update({
                     username: newUsername,
                     bio: newBio
                 });
                 
-                // Update UI
                 currentUserData.username = newUsername;
                 currentUserData.bio = newBio;
                 updateProfileUI();
                 
-                // Tutup modal
                 editProfileModal.style.display = 'none';
                 
                 alert('Profil berhasil diperbarui!');
             } catch (error) {
                 console.error("Gagal memperbarui profil: ", error);
                 alert('Gagal memperbarui profil. Silakan coba lagi.');
+            } finally {
+                loadingOverlay.classList.add('hidden');
             }
         }
         
@@ -419,21 +1003,19 @@
             const user = auth.currentUser;
             if (!user) return;
             
-            loadingOverlay.style.display = 'flex';
+            loadingOverlay.classList.remove('hidden');
             
             try {
-                // Upload gambar ke Firebase Storage
                 const storageRef = storage.ref();
-                const fileRef = storageRef.child(`profile_pictures/${user.uid}/${Date.now()}_${file.name}`);
+                const fileRef = storageRef.child(`profile_pictures/${user.uid}/avatar.jpg`); 
+
                 await fileRef.put(file);
                 const avatarUrl = await fileRef.getDownloadURL();
                 
-                // Update data pengguna di Firestore
                 await db.collection('users').doc(user.uid).update({
                     avatar: avatarUrl
                 });
                 
-                // Update UI
                 currentUserData.avatar = avatarUrl;
                 updateProfileUI();
                 
@@ -442,7 +1024,7 @@
                 console.error("Gagal mengunggah foto profil: ", error);
                 alert('Gagal mengubah foto profil. Silakan coba lagi.');
             } finally {
-                loadingOverlay.style.display = 'none';
+                loadingOverlay.classList.add('hidden');
             }
         }
         
@@ -454,6 +1036,10 @@
                 .orderBy('createdAt', 'desc')
                 .get()
                 .then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        profilePosts.innerHTML = '<p style="text-align: center; margin-top: 20px; color: #8e8e8e;">Belum ada postingan.</p>';
+                        return;
+                    }
                     querySnapshot.forEach(doc => {
                         const post = doc.data();
                         const postElement = document.createElement('div');
@@ -461,7 +1047,7 @@
                         
                         if (post.mediaType === 'video') {
                             postElement.innerHTML = `
-                                <video>
+                                <video preload="metadata">
                                     <source src="${post.mediaUrl}" type="video/mp4">
                                 </video>
                             `;
@@ -473,10 +1059,33 @@
                         
                         profilePosts.appendChild(postElement);
                     });
+                })
+                .catch(error => {
+                    console.error("Error loading profile posts: ", error);
+                    profilePosts.innerHTML = '<p style="text-align: center; margin-top: 20px; color: #dc3545;">Gagal memuat postingan.</p>';
                 });
         }
-        
-        // [Sisa kode JavaScript tetap sama]
+
+        // --- Fungsi Logout ---
+        logoutBtn.addEventListener('click', async () => {
+            if (confirm('Anda yakin ingin keluar?')) {
+                loadingOverlay.classList.remove('hidden');
+                try {
+                    await auth.signOut();
+                    alert('Anda telah berhasil logout!');
+                    // Redirect atau tampilkan halaman login
+                    profileContainer.classList.add('hidden'); 
+                    mobileContent.classList.add('hidden'); 
+                    authContainer.classList.remove('hidden'); 
+                } catch (error) {
+                    console.error("Gagal logout:", error);
+                    alert('Gagal logout. Silakan coba lagi.');
+                } finally {
+                    loadingOverlay.classList.add('hidden');
+                }
+            }
+        });
+
     </script>
 </body>
 </html>
