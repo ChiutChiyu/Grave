@@ -1,526 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <title>Leaderboard - Top Likes & Followers</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>GloVish - Login / Register</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-    
-    body {
-      font-family: "Inter", sans-serif;
-      transition: background-color 0.3s, color 0.3s;
+  <script>
+    // Toggle mode gelap / terang
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
     }
-    
-    .dark body {
-      background-color: #1a202c;
-      color: #e2e8f0;
-    }
-    
-    .dark header {
-      background-color: #2d3748;
-      color: white;
-    }
-    
-    .dark main section {
-      background-color: #2d3748;
-      color: #e2e8f0;
-    }
-    
-    .dark .shadow-md {
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    
-    .dark .text-gray-600 {
-      color: #a0aec0;
-    }
-    
-    .dark .text-gray-700 {
-      color: #cbd5e0;
-    }
-    
-    .dark .border-gray-200 {
-      border-color: #4a5568;
-    }
-    
-    .dark .bg-white {
-      background-color: #2d3748;
-    }
-    
-    .dark .text-[#2563eb] {
-      color: #63b3ed;
-    }
-    
-    .dark .text-[#1e293b] {
-      color: #e2e8f0;
-    }
-    
-    .dark nav {
-      background-color: #2d3748;
-      border-color: #4a5568;
-    }
-    
-    .dark .text-gray-600 {
-      color: #a0aec0;
-    }
-    
-    .podium {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      height: 200px;
-      margin-bottom: 2rem;
-      gap: 1rem;
-    }
-    
-    .podium-place {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100px;
-    }
-    
-    .podium-2 {
-      height: 140px;
-      background: linear-gradient(to top, #c0c0c0, #e0e0e0);
-    }
-    
-    .podium-1 {
-      height: 170px;
-      background: linear-gradient(to top, #ffd700, #fffacd);
-    }
-    
-    .podium-3 {
-      height: 110px;
-      background: linear-gradient(to top, #cd7f32, #e9bb83);
-    }
-    
-    .dark .podium-2 {
-      background: linear-gradient(to top, #4a5568, #718096);
-    }
-    
-    .dark .podium-1 {
-      background: linear-gradient(to top, #d69e2e, #f6e05e);
-    }
-    
-    .dark .podium-3 {
-      background: linear-gradient(to top, #805ad5, #b794f4);
-    }
-    
-    .crown {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #d69e2e;
-    }
-    
-    .medal {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    
-    .gold {
-      background: radial-gradient(circle at 30% 30%, #ffd700, #daa520);
-      color: #000;
-    }
-    
-    .silver {
-      background: radial-gradient(circle at 30% 30%, #c0c0c0, #a9a9a9);
-      color: #000;
-    }
-    
-    .bronze {
-      background: radial-gradient(circle at 30% 30%, #cd7f32, #8b4513);
-      color: #fff;
-    }
-    
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: #2563eb;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 10px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-<body class="bg-[#f1f4f8] min-h-screen flex flex-col">
-  <!-- Header -->
-  <header
-    class="flex items-center justify-between px-5 py-3 bg-white shadow-md relative"
-  >
-    <div class="flex items-center space-x-1">
-      <h1 class="text-2xl font-extrabold text-[#2563eb]">GloVish</h1>
-      <button
-        id="loginBtn"
-        class="bg-[#2563eb] text-white text-sm rounded-md px-3 py-1 ml-3"
-        type="button"
-      >
-        Login
-      </button>
-      <button
-        id="registerBtn"
-        class="bg-[#e2e8f0] text-[#2563eb] text-sm rounded-md px-3 py-1 -ml-1"
-        type="button"
-      >
-        Register
-      </button>
-      <button
-        id="logoutBtn"
-        class="bg-red-600 text-white text-sm rounded-md px-3 py-1 ml-3 hidden"
-        type="button"
-      >
-        Logout
-      </button>
-    </div>
-    <div
-      id="darkModeToggle"
-      class="flex items-center space-x-1 text-[#2563eb] text-center text-sm font-medium cursor-pointer"
-    >
-      <i id="darkModeIcon" class="fas fa-moon text-yellow-400"></i>
-      <div>
-        <div>Dark</div>
-        <div>Mode</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main content -->
-  <main class="flex-grow px-5 pt-6 pb-10 max-w-md mx-auto w-full">
-    <h2 class="text-center text-3xl font-extrabold text-[#1e293b] mb-6">
-      Leaderboard
-    </h2>
-    
-    <!-- Podium -->
-    <div class="podium mb-8 hidden" id="podiumContainer">
-      <!-- Podium items will be inserted here -->
-    </div>
-    
-    <section class="bg-white rounded-xl shadow-md p-6 space-y-8">
-      <div>
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold text-[#2563eb]">Top 5 Likes This Month</h3>
-          <span class="text-sm text-gray-500" id="monthIndicator">July 2025</span>
-        </div>
-        <ul id="topLikesList" class="divide-y divide-gray-200">
-          <p class="text-center text-gray-600 py-4">Loading...</p>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-xl font-semibold text-[#2563eb] mb-4">Top 5 Followers</h3>
-        <ul id="topFollowersList" class="divide-y divide-gray-200">
-          <p class="text-center text-gray-600 py-4">Loading...</p>
-        </ul>
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom Navigation -->
-  <nav
-    class="bg-white shadow-inner border-t border-gray-200 fixed bottom-0 left-0 right-0"
-  >
-    <ul class="flex justify-around text-gray-600 text-xs font-medium py-2">
-      <li class="flex flex-col items-center space-y-1 cursor-pointer" title="Feed">
-        <i class="fas fa-home text-xl"></i>
-        <span>Feed</span>
-      </li>
-      <li class="flex flex-col items-center space-y-1 cursor-pointer" title="Upload">
-        <i class="fas fa-upload text-xl"></i>
-        <span>Upload</span>
-      </li>
-      <li class="flex flex-col items-center space-y-1 cursor-pointer" title="Profile">
-        <i class="fas fa-user text-xl"></i>
-        <span>Profile</span>
-      </li>
-      <li class="flex flex-col items-center space-y-1 cursor-pointer" title="Chat">
-        <i class="fas fa-comment-alt text-xl"></i>
-        <span>Chat</span>
-      </li>
-      <li class="flex flex-col items-center space-y-1 text-[#2563eb]" title="Leaderboard">
-        <i class="fas fa-trophy text-xl"></i>
-        <span>Leaderboard</span>
-      </li>
-    </ul>
-  </nav>
-
-  <script type="module">
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
-      authDomain: "projectchat01-d16bc.firebaseapp.com",
-      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
-      projectId: "projectchat01-d16bc",
-      storageBucket: "projectchat01-d16bc.appspot.com",
-      messagingSenderId: "163313653543",
-      appId: "1:163313653543:web:cd1c193158d8a76811bb02",
-      measurementId: "G-VG80CY31FG",
-    };
-
-    // Mock Firebase functionality for demonstration
-    const mockUsers = {
-      "user1": { displayName: "Alex Johnson", photoURL: "https://randomuser.me/api/portraits/men/32.jpg" },
-      "user2": { displayName: "Maria Garcia", photoURL: "https://randomuser.me/api/portraits/women/44.jpg" },
-      "user3": { displayName: "David Smith", photoURL: "https://randomuser.me/api/portraits/men/22.jpg" },
-      "user4": { displayName: "Emma Wilson", photoURL: "https://randomuser.me/api/portraits/women/33.jpg" },
-      "user5": { displayName: "James Brown", photoURL: "https://randomuser.me/api/portraits/men/55.jpg" },
-      "user6": { displayName: "Sophia Lee", photoURL: "https://randomuser.me/api/portraits/women/65.jpg" },
-      "user7": { displayName: "Michael Davis", photoURL: "https://randomuser.me/api/portraits/men/77.jpg" },
-      "user8": { displayName: "Olivia Miller", photoURL: "https://randomuser.me/api/portraits/women/88.jpg" },
-    };
-
-    // Mock data for demonstration
-    const mockLikes = {
-      "user1": 245,
-      "user2": 198,
-      "user3": 176,
-      "user4": 154,
-      "user5": 132,
-    };
-
-    const mockFollowers = {
-      "user1": 1250,
-      "user2": 980,
-      "user3": 876,
-      "user4": 754,
-      "user5": 632,
-    };
-
-    // DOM Elements
-    const loginBtn = document.getElementById("loginBtn");
-    const registerBtn = document.getElementById("registerBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const topLikesList = document.getElementById("topLikesList");
-    const topFollowersList = document.getElementById("topFollowersList");
-    const darkModeToggle = document.getElementById("darkModeToggle");
-    const darkModeIcon = document.getElementById("darkModeIcon");
-    const podiumContainer = document.getElementById("podiumContainer");
-    const monthIndicator = document.getElementById("monthIndicator");
-
-    // Set current month
-    const now = new Date();
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"];
-    monthIndicator.textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
-
-    // Mock authentication state
-    let isLoggedIn = false;
-
-    // Show/hide buttons based on auth state
-    function updateAuthUI() {
-      if (isLoggedIn) {
-        loginBtn.classList.add("hidden");
-        registerBtn.classList.add("hidden");
-        logoutBtn.classList.remove("hidden");
-        loadLeaderboard();
-        podiumContainer.classList.remove("hidden");
-      } else {
-        loginBtn.classList.remove("hidden");
-        registerBtn.classList.remove("hidden");
-        logoutBtn.classList.add("hidden");
-        topLikesList.innerHTML = `<p class="text-center text-gray-600 py-4">Please login to see leaderboard.</p>`;
-        topFollowersList.innerHTML = `<p class="text-center text-gray-600 py-4">Please login to see leaderboard.</p>`;
-        podiumContainer.classList.add("hidden");
-      }
-    }
-
-    // Initialize with logged out state
-    updateAuthUI();
-
-    // Login button
-    loginBtn.addEventListener("click", () => {
-      isLoggedIn = true;
-      updateAuthUI();
-    });
-
-    // Register button
-    registerBtn.addEventListener("click", () => {
-      isLoggedIn = true;
-      updateAuthUI();
-    });
-
-    // Logout button
-    logoutBtn.addEventListener("click", () => {
-      isLoggedIn = false;
-      updateAuthUI();
-      alert("Logged out successfully");
-    });
-
-    // Dark mode toggle
-    darkModeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-      const isDarkMode = document.body.classList.contains("dark");
-      localStorage.setItem("darkMode", isDarkMode);
-      
-      if (isDarkMode) {
-        darkModeIcon.className = "fas fa-sun text-yellow-400";
-      } else {
-        darkModeIcon.className = "fas fa-moon text-yellow-400";
-      }
-    });
-
-    // Load dark mode preference
-    if (localStorage.getItem("darkMode") === "true") {
-      document.body.classList.add("dark");
-      darkModeIcon.className = "fas fa-sun text-yellow-400";
-    }
-
-    // Bottom navigation
-    document.querySelectorAll('nav ul li').forEach((item, index) => {
-      item.addEventListener('click', () => {
-        const pages = ['feed.html', 'upload.html', 'profile.html', 'chat.html', 'leaderboard.html'];
-        alert(`Navigating to: ${pages[index]}`);
-      });
-    });
-
-    // Load leaderboard data
-    function loadLeaderboard() {
-      topLikesList.innerHTML = `
-        <div class="flex justify-center py-4">
-          <div class="loading-spinner"></div>
-          <span>Loading likes...</span>
-        </div>`;
-      
-      topFollowersList.innerHTML = `
-        <div class="flex justify-center py-4">
-          <div class="loading-spinner"></div>
-          <span>Loading followers...</span>
-        </div>`;
-
-      // Simulate API delay
-      setTimeout(() => {
-        renderLikesLeaderboard();
-        renderFollowersLeaderboard();
-        renderPodium();
-      }, 1500);
-    }
-
-    // Render likes leaderboard
-    function renderLikesLeaderboard() {
-      const sortedLikes = Object.entries(mockLikes)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
-      if (sortedLikes.length === 0) {
-        topLikesList.innerHTML = `<p class="text-center text-gray-600 py-4">No likes data for this month.</p>`;
-        return;
-      }
-
-      topLikesList.innerHTML = "";
-      sortedLikes.forEach(([uid, count], index) => {
-        const user = mockUsers[uid] || {};
-        const displayName = user.displayName || "Unknown User";
-        const photoURL = user.photoURL || "https://placehold.co/40x40/png?text=No+Photo";
-        const li = document.createElement("li");
-        li.className = "flex items-center space-x-3 py-3";
-        li.innerHTML = `
-          <span class="font-semibold w-6 text-right">${index + 1}.</span>
-          <img src="${photoURL}" alt="${displayName}" class="w-10 h-10 rounded-full object-cover border-2 ${index === 0 ? 'border-yellow-400' : index === 1 ? 'border-gray-300' : index === 2 ? 'border-amber-800' : 'border-transparent'}" />
-          <span class="flex-grow font-medium text-[#2563eb] truncate">${displayName}</span>
-          <span class="flex items-center">
-            <i class="fas fa-heart text-red-500 mr-1"></i>
-            <span class="text-gray-700 font-semibold">${count}</span>
-          </span>
-        `;
-        topLikesList.appendChild(li);
-      });
-    }
-
-    // Render followers leaderboard
-    function renderFollowersLeaderboard() {
-      const sortedFollowers = Object.entries(mockFollowers)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
-      if (sortedFollowers.length === 0) {
-        topFollowersList.innerHTML = `<p class="text-center text-gray-600 py-4">No followers data.</p>`;
-        return;
-      }
-
-      topFollowersList.innerHTML = "";
-      sortedFollowers.forEach(([uid, count], index) => {
-        const user = mockUsers[uid] || {};
-        const displayName = user.displayName || "Unknown User";
-        const photoURL = user.photoURL || "https://placehold.co/40x40/png?text=No+Photo";
-        const li = document.createElement("li");
-        li.className = "flex items-center space-x-3 py-3";
-        li.innerHTML = `
-          <span class="font-semibold w-6 text-right">${index + 1}.</span>
-          <img src="${photoURL}" alt="${displayName}" class="w-10 h-10 rounded-full object-cover border-2 ${index === 0 ? 'border-yellow-400' : index === 1 ? 'border-gray-300' : index === 2 ? 'border-amber-800' : 'border-transparent'}" />
-          <span class="flex-grow font-medium text-[#2563eb] truncate">${displayName}</span>
-          <span class="flex items-center">
-            <i class="fas fa-users text-blue-500 mr-1"></i>
-            <span class="text-gray-700 font-semibold">${count}</span>
-          </span>
-        `;
-        topFollowersList.appendChild(li);
-      });
-    }
-
-    // Render podium
-    function renderPodium() {
-      const sortedLikes = Object.entries(mockLikes)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
-
-      podiumContainer.innerHTML = "";
-      
-      if (sortedLikes.length === 0) return;
-      
-      // Create podium places in order: 2nd, 1st, 3rd
-      const podiumOrder = [
-        { position: 2, height: "140px", class: "podium-2" },
-        { position: 1, height: "170px", class: "podium-1" },
-        { position: 3, height: "110px", class: "podium-3" }
-      ];
-      
-      podiumOrder.forEach((podium, index) => {
-        const userData = sortedLikes[podium.position - 1];
-        if (!userData) return;
-        
-        const [uid, count] = userData;
-        const user = mockUsers[uid] || {};
-        const displayName = user.displayName || "Unknown User";
-        const photoURL = user.photoURL || "https://placehold.co/40x40/png?text=No+Photo";
-        
-        const podiumEl = document.createElement("div");
-        podiumEl.className = "podium-place";
-        
-        let topContent = '';
-        if (podium.position === 1) {
-          topContent = `<div class="crown"><i class="fas fa-crown"></i></div>`;
-        } else {
-          topContent = `<div class="medal ${podium.position === 2 ? 'silver' : 'bronze'}">${podium.position}</div>`;
-        }
-        
-        podiumEl.innerHTML = `
-          ${topContent}
-          <img src="${photoURL}" alt="${displayName}" class="w-14 h-14 rounded-full object-cover border-2 ${podium.position === 1 ? 'border-yellow-400' : podium.position === 2 ? 'border-gray-300' : 'border-amber-800'} mb-2" />
-          <div class="font-semibold truncate max-w-full">${displayName}</div>
-          <div class="text-sm text-gray-600">${count} likes</div>
-          <div class="${podium.class} w-full rounded-t-lg flex items-center justify-center text-white font-bold text-lg mt-2">
-            #${podium.position}
-          </div>
-        `;
-        
-        podiumContainer.appendChild(podiumEl);
-      });
+    // Load tema dari penyimpanan
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
     }
   </script>
+</head>
+<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full p-6 bg-gray-100 dark:bg-gray-800 rounded shadow">
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold">GloVish</h1>
+      <p class="text-sm">Masuk atau daftar untuk mulai</p>
+      <button onclick="toggleTheme()" class="mt-2 text-blue-500 hover:underline">
+        Toggle Mode
+      </button>
+    </div>
+
+    <div id="form-login">
+      <input id="email" type="email" placeholder="Email" class="w-full p-2 mb-2 border rounded bg-white dark:bg-gray-700" />
+      <input id="password" type="password" placeholder="Password" class="w-full p-2 mb-2 border rounded bg-white dark:bg-gray-700" />
+      <button onclick="login()" class="w-full bg-blue-500 text-white py-2 rounded mb-2">Login</button>
+      <p class="text-sm text-center">
+        <a href="#" onclick="switchToRegister()" class="text-green-500 hover:underline">Belum punya akun? Register</a> •
+        <a href="#" onclick="switchToReset()" class="text-yellow-500 hover:underline">Lupa Password?</a>
+      </p>
+    </div>
+
+    <div id="form-register" class="hidden">
+      <input id="reg-email" type="email" placeholder="Email" class="w-full p-2 mb-2 border rounded bg-white dark:bg-gray-700" />
+      <input id="reg-password" type="password" placeholder="Password" class="w-full p-2 mb-2 border rounded bg-white dark:bg-gray-700" />
+      <button onclick="register()" class="w-full bg-green-500 text-white py-2 rounded mb-2">Register</button>
+      <p class="text-sm text-center">
+        <a href="#" onclick="switchToLogin()" class="text-blue-500 hover:underline">Sudah punya akun? Login</a>
+      </p>
+    </div>
+
+    <div id="form-reset" class="hidden">
+      <input id="reset-email" type="email" placeholder="Email untuk reset password" class="w-full p-2 mb-2 border rounded bg-white dark:bg-gray-700" />
+      <button onclick="forgotPassword()" class="w-full bg-yellow-500 text-white py-2 rounded mb-2">Kirim Email Reset</button>
+      <p class="text-sm text-center">
+        <a href="#" onclick="switchToLogin()" class="text-blue-500 hover:underline">Kembali ke Login</a>
+      </p>
+    </div>
+  </div>
+
+  <script type="module" src="./js/auth.js"></script>
 </body>
 </html>
