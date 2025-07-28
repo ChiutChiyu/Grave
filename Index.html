@@ -4,14 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Glovish - Bagikan Momenmu</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-storage.js";
+        // If you need analytics, uncomment and include it
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+            authDomain: "projectchat01-d16bc.firebaseapp.com",
+            databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+            projectId: "projectchat01-d16bc",
+            storageBucket: "projectchat01-d16bc.appspot.com",
+            messagingSenderId: "163313653543",
+            appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02",
+            measurementId: "G-M8JFL7S0TV"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        // If you need analytics, uncomment this
+        // const analytics = getAnalytics(app);
+
+        // --- All your existing JavaScript code will go here, but with updated Firebase calls ---
+        // I will re-add it below for a complete, working example.
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* All your existing CSS */
         body {
-            font-family: -apple-system, BlinkMacMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #fafafa;
@@ -590,25 +619,34 @@
         </div>
     </div>
     
-    <script>
-        // Inisialisasi Firebase (Ganti dengan konfigurasi proyek Anda)
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-storage.js";
+        // If you need analytics, uncomment and include it
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY", // Ganti dengan API Key Anda
-            authDomain: "YOUR_AUTH_DOMAIN", // Ganti dengan Auth Domain Anda
-            projectId: "YOUR_PROJECT_ID", // Ganti dengan Project ID Anda
-            storageBucket: "YOUR_STORAGE_BUCKET", // Ganti dengan Storage Bucket Anda
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Ganti dengan Messaging Sender ID Anda
-            appId: "YOUR_APP_ID" // Ganti dengan App ID Anda
+            apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+            authDomain: "projectchat01-d16bc.firebaseapp.com",
+            databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+            projectId: "projectchat01-d16bc",
+            storageBucket: "projectchat01-d16bc.appspot.com",
+            messagingSenderId: "163313653543",
+            appId: "1:163313653543:web:5a4c8b70d6dedb8011bb02",
+            measurementId: "G-M8JFL7S0TV"
         };
 
-        // Pastikan untuk menginisialisasi Firebase hanya sekali
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        // If you need analytics, uncomment this
+        // const analytics = getAnalytics(app);
 
         // Elemen HTML utama
         const mainApp = document.getElementById('main-app');
@@ -657,23 +695,20 @@
         let currentUserData = null; 
 
         // --- Fungsi Autentikasi ---
-        auth.onAuthStateChanged(user => {
+        onAuthStateChanged(auth, (user) => { // Updated: use onAuthStateChanged from firebase/auth
             if (user) {
-                // Pengguna login
                 mainApp.classList.remove('hidden');
                 authContainer.classList.add('hidden');
-                profileContainer.classList.add('hidden'); // Pastikan profil tersembunyi saat awal load (tampilkan home)
-                loadFeed(); // Muat feed postingan
-                loadProfileData(); // Muat data profil saat login
+                profileContainer.classList.add('hidden');
+                loadFeed();
+                loadProfileData();
             } else {
-                // Pengguna belum login atau logout
                 mainApp.classList.add('hidden');
                 profileContainer.classList.add('hidden'); 
                 authContainer.classList.remove('hidden');
             }
         });
 
-        // Simpan referensi ke event listener untuk authToggleLink
         const authToggleLinkHandler = (e) => {
             e.preventDefault();
             isLoginMode = !isLoginMode;
@@ -686,7 +721,6 @@
                 authSubmitBtn.textContent = 'Daftar';
                 authToggleText.innerHTML = 'Sudah punya akun? <a href="#" id="auth-toggle-link">Login</a>';
             }
-            // Re-attach event listener to the new link element
             document.getElementById('auth-toggle-link').addEventListener('click', authToggleLinkHandler);
         };
         authToggleLink.addEventListener('click', authToggleLinkHandler);
@@ -699,13 +733,14 @@
 
             try {
                 if (isLoginMode) {
-                    await auth.signInWithEmailAndPassword(email, password);
+                    await signInWithEmailAndPassword(auth, email, password); // Updated: use signInWithEmailAndPassword from firebase/auth
                     alert('Login berhasil!');
                 } else {
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password); // Updated: use createUserWithEmailAndPassword from firebase/auth
                     const user = userCredential.user;
-                    // Simpan data pengguna awal ke Firestore
-                    await db.collection('users').doc(user.uid).set({
+                    
+                    // Updated: use setDoc with doc and db
+                    await setDoc(doc(db, 'users', user.uid), {
                         username: email.split('@')[0], 
                         bio: '',
                         avatar: 'https://randomuser.me/api/portraits/lego/1.jpg' 
@@ -749,15 +784,16 @@
             loadingOverlay.classList.remove('hidden');
 
             try {
-                const storageRef = storage.ref();
+                // Updated: use ref and storage
                 const fileType = file.type.startsWith('image') ? 'images' : 'videos';
                 const fileName = `${user.uid}_${Date.now()}_${file.name}`;
-                const fileRef = storageRef.child(`posts/${fileType}/${fileName}`);
+                const fileRef = ref(storage, `posts/${fileType}/${fileName}`); // Updated: use ref for storage reference
 
-                await fileRef.put(file);
-                const mediaUrl = await fileRef.getDownloadURL();
+                await uploadBytes(fileRef, file); // Updated: use uploadBytes for file upload
+                const mediaUrl = await getDownloadURL(fileRef); // Updated: use getDownloadURL to get URL
 
-                await db.collection('posts').add({
+                // Updated: use addDoc with collection and db
+                await addDoc(collection(db, 'posts'), {
                     userId: user.uid,
                     username: currentUserData ? currentUserData.username : user.email.split('@')[0], 
                     avatar: currentUserData ? currentUserData.avatar : 'https://randomuser.me/api/portraits/lego/1.jpg', 
@@ -766,7 +802,7 @@
                     caption: caption,
                     likes: 0,
                     comments: 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: serverTimestamp() // Updated: use serverTimestamp from firebase-firestore
                 });
 
                 alert('Postingan berhasil diunggah!');
@@ -785,18 +821,17 @@
 
         function loadFeed() {
             mobileContent.innerHTML = '';
-            db.collection('posts')
-                .orderBy('createdAt', 'desc')
-                .limit(10) 
-                .get()
+            // Updated: use query, collection, orderBy from firebase-firestore
+            const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+            getDocs(q) // Updated: use getDocs for query snapshot
                 .then(querySnapshot => {
                     if (querySnapshot.empty) {
                         mobileContent.innerHTML = '<p style="text-align: center; margin-top: 20px; color: #8e8e8e;">Belum ada postingan di feed.</p>';
                         return;
                     }
-                    querySnapshot.forEach(doc => {
-                        const post = doc.data();
-                        const postId = doc.id;
+                    querySnapshot.forEach(documentSnapshot => { // Updated: use documentSnapshot
+                        const post = documentSnapshot.data();
+                        const postId = documentSnapshot.id;
                         const postElement = document.createElement('div');
                         postElement.className = 'post';
 
@@ -884,12 +919,11 @@
                     editAvatarPreview.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
-                // Langsung upload jika dipilih dari modal edit
                 uploadProfilePicture(file); 
             }
         });
         
-        function loadProfileData() {
+        async function loadProfileData() {
             const user = auth.currentUser;
             if (!user) {
                 profileContainer.classList.add('hidden');
@@ -897,55 +931,41 @@
                 return;
             }
             
-            db.collection('users').doc(user.uid).get()
-                .then(doc => {
-                    if (doc.exists) {
-                        currentUserData = doc.data();
-                        updateProfileUI();
-                        
-                        db.collection('posts')
-                            .where('userId', '==', user.uid)
-                            .get()
-                            .then(querySnapshot => {
-                                postCount.textContent = querySnapshot.size;
-                            });
-                        
-                        db.collection('followers')
-                            .doc(user.uid)
-                            .collection('userFollowers')
-                            .get()
-                            .then(querySnapshot => {
-                                followerCount.textContent = querySnapshot.size;
-                            });
-                        
-                        db.collection('following')
-                            .doc(user.uid)
-                            .collection('userFollowing')
-                            .get()
-                            .then(querySnapshot => {
-                                followingCount.textContent = querySnapshot.size;
-                            });
-                        
-                        loadProfilePosts(user.uid);
-                    } else {
-                        console.warn("Dokumen user tidak ditemukan. Membuat entri user default.");
-                        const defaultUsername = user.email ? user.email.split('@')[0] : 'PenggunaBaru';
-                        const defaultAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
-                        db.collection('users').doc(user.uid).set({
-                            username: defaultUsername,
-                            bio: '',
-                            avatar: defaultAvatar
-                        }).then(() => {
-                            currentUserData = { username: defaultUsername, bio: '', avatar: defaultAvatar };
-                            updateProfileUI();
-                        }).catch(err => {
-                            console.error("Gagal membuat dokumen user default:", err);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error("Error loading profile data: ", error);
+            // Updated: use doc and getDoc
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                currentUserData = userDocSnap.data();
+                updateProfileUI();
+                
+                // Updated: use query, collection, where, getDocs
+                const postsQuery = query(collection(db, 'posts'), where('userId', '==', user.uid));
+                const postsSnapshot = await getDocs(postsQuery);
+                postCount.textContent = postsSnapshot.size;
+                
+                const followersQuery = query(collection(db, 'followers', user.uid, 'userFollowers'));
+                const followersSnapshot = await getDocs(followersQuery);
+                followerCount.textContent = followersSnapshot.size;
+                
+                const followingQuery = query(collection(db, 'following', user.uid, 'userFollowing'));
+                const followingSnapshot = await getDocs(followingQuery);
+                followingCount.textContent = followingSnapshot.size;
+                
+                loadProfilePosts(user.uid);
+            } else {
+                console.warn("Dokumen user tidak ditemukan. Membuat entri user default.");
+                const defaultUsername = user.email ? user.email.split('@')[0] : 'PenggunaBaru';
+                const defaultAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
+                // Updated: use setDoc with doc
+                await setDoc(doc(db, 'users', user.uid), {
+                    username: defaultUsername,
+                    bio: '',
+                    avatar: defaultAvatar
                 });
+                currentUserData = { username: defaultUsername, bio: '', avatar: defaultAvatar };
+                updateProfileUI();
+            }
         }
         
         function updateProfileUI() {
@@ -979,7 +999,8 @@
             loadingOverlay.classList.remove('hidden');
 
             try {
-                await db.collection('users').doc(user.uid).update({
+                // Updated: use updateDoc with doc
+                await updateDoc(doc(db, 'users', user.uid), {
                     username: newUsername,
                     bio: newBio
                 });
@@ -1006,13 +1027,14 @@
             loadingOverlay.classList.remove('hidden');
             
             try {
-                const storageRef = storage.ref();
-                const fileRef = storageRef.child(`profile_pictures/${user.uid}/avatar.jpg`); 
+                // Updated: use ref for storage reference
+                const fileRef = ref(storage, `profile_pictures/${user.uid}/avatar.jpg`); 
 
-                await fileRef.put(file);
-                const avatarUrl = await fileRef.getDownloadURL();
+                await uploadBytes(fileRef, file); // Updated: use uploadBytes for file upload
+                const avatarUrl = await getDownloadURL(fileRef); // Updated: use getDownloadURL to get URL
                 
-                await db.collection('users').doc(user.uid).update({
+                // Updated: use updateDoc with doc
+                await updateDoc(doc(db, 'users', user.uid), {
                     avatar: avatarUrl
                 });
                 
@@ -1031,17 +1053,20 @@
         function loadProfilePosts(userId) {
             profilePosts.innerHTML = '';
             
-            db.collection('posts')
-                .where('userId', '==', userId)
-                .orderBy('createdAt', 'desc')
-                .get()
+            // Updated: use query, collection, where, orderBy, getDocs
+            const postsQuery = query(
+                collection(db, 'posts'), 
+                where('userId', '==', userId), 
+                orderBy('createdAt', 'desc')
+            );
+            getDocs(postsQuery)
                 .then(querySnapshot => {
                     if (querySnapshot.empty) {
                         profilePosts.innerHTML = '<p style="text-align: center; margin-top: 20px; color: #8e8e8e;">Belum ada postingan.</p>';
                         return;
                     }
-                    querySnapshot.forEach(doc => {
-                        const post = doc.data();
+                    querySnapshot.forEach(documentSnapshot => {
+                        const post = documentSnapshot.data();
                         const postElement = document.createElement('div');
                         postElement.className = 'profile-post';
                         
@@ -1071,9 +1096,8 @@
             if (confirm('Anda yakin ingin keluar?')) {
                 loadingOverlay.classList.remove('hidden');
                 try {
-                    await auth.signOut();
+                    await signOut(auth); // Updated: use signOut from firebase/auth
                     alert('Anda telah berhasil logout!');
-                    // Redirect atau tampilkan halaman login
                     profileContainer.classList.add('hidden'); 
                     mobileContent.classList.add('hidden'); 
                     authContainer.classList.remove('hidden'); 
