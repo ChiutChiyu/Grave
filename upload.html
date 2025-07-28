@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Upload GloVish</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+      authDomain: "projectchat01-d16bc.firebaseapp.com",
+      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+      projectId: "projectchat01-d16bc",
+      storageBucket: "projectchat01-d16bc.appspot.com",
+      messagingSenderId: "163313653543",
+      appId: "1:163313653543:web:cd1c193158d8a76811bb02"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const file = document.getElementById("mediaFile").files[0];
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      const username = "anon"; // Bisa disesuaikan jika sudah login
+
+      if (!file || !title) return alert("Isi judul dan pilih media!");
+
+      const type = file.type.startsWith("image") ? "image" : "video";
+      const storageRef = sRef(storage, 'uploads/' + file.name);
+      await uploadBytes(storageRef, file);
+      const mediaUrl = await getDownloadURL(storageRef);
+
+      const newPost = {
+        title,
+        description,
+        username,
+        mediaUrl,
+        type,
+        likes: 0,
+        dislikes: 0,
+        timestamp: Date.now()
+      };
+
+      push(ref(db, 'posts'), newPost);
+      alert("Berhasil diunggah!");
+      document.getElementById("uploadForm").reset();
+    });
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-black text-black dark:text-white min-h-screen px-4 py-6">
+  <h1 class="text-3xl font-bold mb-6 text-center">Upload Media</h1>
+  <form id="uploadForm" class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow">
+    <input type="text" id="title" placeholder="Judul" required class="w-full mb-4 p-2 border rounded bg-gray-100 dark:bg-gray-700" />
+    <textarea id="description" placeholder="Deskripsi" rows="3" class="w-full mb-4 p-2 border rounded bg-gray-100 dark:bg-gray-700"></textarea>
+    <input type="file" id="mediaFile" accept="image/*,video/*" required class="w-full mb-4" />
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Upload</button>
+  </form>
+</body>
+</html>
