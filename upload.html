@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Upload GloVish</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Media</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -21,48 +21,45 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
     const storage = getStorage(app);
+    const db = getDatabase(app);
 
-    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    const uploadForm = document.getElementById('uploadForm');
+
+    uploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const title = uploadForm.title.value;
+      const description = uploadForm.description.value;
+      const file = uploadForm.media.files[0];
 
-      const file = document.getElementById("mediaFile").files[0];
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-      const username = "anon"; // Bisa disesuaikan jika sudah login
+      if (!file) return alert('Pilih media terlebih dahulu.');
 
-      if (!file || !title) return alert("Isi judul dan pilih media!");
-
-      const type = file.type.startsWith("image") ? "image" : "video";
-      const storageRef = sRef(storage, 'uploads/' + file.name);
+      const type = file.type.startsWith('video') ? 'video' : 'image';
+      const storageRef = sRef(storage, 'posts/' + Date.now() + '-' + file.name);
       await uploadBytes(storageRef, file);
-      const mediaUrl = await getDownloadURL(storageRef);
+      const url = await getDownloadURL(storageRef);
 
-      const newPost = {
+      await push(ref(db, 'posts'), {
         title,
         description,
-        username,
-        mediaUrl,
+        mediaUrl: url,
         type,
         likes: 0,
-        dislikes: 0,
-        timestamp: Date.now()
-      };
+        dislikes: 0
+      });
 
-      push(ref(db, 'posts'), newPost);
-      alert("Berhasil diunggah!");
-      document.getElementById("uploadForm").reset();
+      alert("Upload berhasil!");
+      uploadForm.reset();
     });
   </script>
 </head>
-<body class="bg-gray-100 dark:bg-black text-black dark:text-white min-h-screen px-4 py-6">
-  <h1 class="text-3xl font-bold mb-6 text-center">Upload Media</h1>
-  <form id="uploadForm" class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow">
-    <input type="text" id="title" placeholder="Judul" required class="w-full mb-4 p-2 border rounded bg-gray-100 dark:bg-gray-700" />
-    <textarea id="description" placeholder="Deskripsi" rows="3" class="w-full mb-4 p-2 border rounded bg-gray-100 dark:bg-gray-700"></textarea>
-    <input type="file" id="mediaFile" accept="image/*,video/*" required class="w-full mb-4" />
-    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Upload</button>
+<body class="bg-gray-100 min-h-screen p-6 text-black">
+  <h1 class="text-2xl font-bold mb-4">Upload Postingan</h1>
+  <form id="uploadForm" class="max-w-md space-y-4">
+    <input name="title" type="text" placeholder="Judul" required class="w-full p-2 border rounded"/>
+    <textarea name="description" placeholder="Deskripsi" required class="w-full p-2 border rounded"></textarea>
+    <input name="media" type="file" accept="image/*,video/*" required class="w-full"/>
+    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Upload</button>
   </form>
 </body>
 </html>
