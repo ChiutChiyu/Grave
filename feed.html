@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>GloVish - Feed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+      authDomain: "projectchat01-d16bc.firebaseapp.com",
+      databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+      projectId: "projectchat01-d16bc",
+      storageBucket: "projectchat01-d16bc.appspot.com",
+      messagingSenderId: "163313653543",
+      appId: "1:163313653543:web:cd1c193158d8a76811bb02",
+      measurementId: "G-VG80CY31FG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const feedContainer = document.getElementById('feed');
+
+    const postsRef = ref(db, 'posts');
+    onValue(postsRef, (snapshot) => {
+      feedContainer.innerHTML = ''; // Kosongkan kontainer terlebih dahulu
+      snapshot.forEach((child) => {
+        const post = child.val();
+        const postId = child.key;
+        const mediaEl = post.type === 'image'
+          ? `<img src="${post.mediaUrl}" class="w-full rounded"/>`
+          : `<video src="${post.mediaUrl}" controls class="w-full rounded"></video>`;
+
+        const card = `
+          <div class="bg-white dark:bg-gray-800 p-4 rounded shadow mb-4">
+            <div class="mb-2 font-semibold">@${post.username}</div>
+            ${mediaEl}
+            <h2 class="text-xl mt-2 font-bold">${post.title}</h2>
+            <p class="text-sm mb-2">${post.description}</p>
+            <div class="flex items-center gap-2">
+              <button onclick="likePost('${postId}')" class="text-blue-500">👍 ${post.likes || 0}</button>
+              <button onclick="dislikePost('${postId}')" class="text-red-500">👎 ${post.dislikes || 0}</button>
+            </div>
+          </div>`;
+        feedContainer.innerHTML += card;
+      });
+    });
+
+    window.likePost = (postId) => {
+      const likeRef = ref(db, `posts/${postId}/likes`);
+      onValue(likeRef, (snap) => {
+        const current = snap.val() || 0;
+        update(ref(db, `posts/${postId}`), { likes: current + 1 });
+      }, { onlyOnce: true });
+    };
+
+    window.dislikePost = (postId) => {
+      const dislikeRef = ref(db, `posts/${postId}/dislikes`);
+      onValue(dislikeRef, (snap) => {
+        const current = snap.val() || 0;
+        update(ref(db, `posts/${postId}`), { dislikes: current + 1 });
+      }, { onlyOnce: true });
+    };
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-black text-black dark:text-white min-h-screen px-4 py-6">
+  <h1 class="text-3xl font-bold mb-6 text-center">Feed GloVish</h1>
+  <div id="feed"></div>
+</body>
+</html>
